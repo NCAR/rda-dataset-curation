@@ -26,8 +26,6 @@ def collate(dim_name, files, varname=None, output_filename="out.nc" ):
     return (new_dim_data, new_var_data)
 
 
-def copy_data():
-    pass
 
 def is_primary_variable(varname, dims):
     return varname not in dims
@@ -59,9 +57,6 @@ if __name__ == '__main__':
         exit(1)
     args = parser.parse_args()
     collate(args.dimname, args.files, varname=args.varname, outfile=args.outfile)
-    print(args.files)
-
-
 
 
 

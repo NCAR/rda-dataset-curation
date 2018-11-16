@@ -1,6 +1,6 @@
 
 ## compareNetCDFData
-Used to compare 2 netCDF files to test for equivalence.
+Used to compare two netCDF files to test for equivalence.
 
 ```
 $ ./compareNetCDFData.py
