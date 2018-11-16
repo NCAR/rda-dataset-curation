@@ -5,13 +5,16 @@ import argparse
 import numpy as np
 import pdb
 
-def collate(dim_name, *files):
+def collate(dim_name, files, varname=None, output_filename="out.nc" ):
     # Open all files
     var_data = []
     dim_data = []
     for file_str in files:
         nc = Dataset(file_str)
-        pv = get_primary_variable(nc)
+        if varname is None:
+            pv = get_primary_variable(nc)
+        else:
+            pv = varname
         dv = get_dimension_variable(nc, dim_name)
         var_data.append(pv[:])
         dim_data.append(dv[:])
@@ -20,8 +23,8 @@ def collate(dim_name, *files):
     new_var_data = np.concatenate(var_data, axis=1)
     new_dim_data = np.concatenate(dim_data, axis=0)
 
-    # Create new netCDF
-    nc = Dataset('newFile.nc')
+    return (new_dim_data, new_var_data)
+
 
 def copy_data():
     pass
@@ -55,7 +58,7 @@ if __name__ == '__main__':
         args = parser.parse_args(['-h'])
         exit(1)
     args = parser.parse_args()
-    collate(args.dimname,args.files)
+    collate(args.dimname, args.files)
     print(args.files)
 
 
