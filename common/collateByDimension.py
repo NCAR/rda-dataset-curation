@@ -4,6 +4,7 @@ from netCDF4 import Dataset
 import argparse
 import numpy as np
 import pdb
+import copyNC
 
 def collate(dim_name, files, varname=None, output_filename="out.nc" ):
     # Open all files
@@ -23,6 +24,9 @@ def collate(dim_name, files, varname=None, output_filename="out.nc" ):
     new_var_data = np.concatenate(var_data, axis=1)
     new_dim_data = np.concatenate(dim_data, axis=0)
 
+
+    nc = copyNC.copy(files[0], output_filename)
+    nc.variables[pv] =
     return (new_dim_data, new_var_data)
 
 

@@ -3,6 +3,7 @@ import os
 import argparse
 from netCDF4 import Dataset
 import numpy as np
+import pdb
 
 
 def get_test_filename():
@@ -19,8 +20,17 @@ def get_test_filename():
 def create(name=None, num_dims=3, dim_len=10, varname='Test'):
     """Creates raw test file.
     """
+    ## Handle bad command line args
+    if num_dims is None:
+        num_dims=3
+    if dim_len is None:
+        dim_len = 10
+    if varname is None:
+        varname = 'Test'
     if name is None:
         name = get_test_filename()
+
+
     nc = Dataset(name, 'w')
 
     # Create Dimensions
@@ -56,10 +66,9 @@ parser.add_argument('--dim-length','-dl', type=str, help="Specify length of dime
 parser.add_argument('--varname','-v', type=str, help="Specify primary variable's name")
 
 args = parser.parse_args()
-
 name = create(name=args.filename,
-        num_dims=args.num-dims,
-        dim_len=args.dim-length,
+        num_dims=args.num_dims,
+        dim_len=args.dim_length,
         varname=args.varname)
 
 print(name)
