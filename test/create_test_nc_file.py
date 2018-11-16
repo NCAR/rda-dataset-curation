@@ -9,15 +9,14 @@ def get_test_filename():
     filename = 'test'
     extension = '.nc'
     i = 1
-    while not os.path.isfile(filename+extension):
-        filename = filename + str(i)
+    while os.path.isfile(filename + str(i) + extension):
         i += 1
-    return filename + extension
+    return filename + str(i) + extension
 
-def create_test_file(name=None, numDims=3, dim_len=10, varname='Test'):
+def create_test_file(name=None, num_dims=3, dim_len=10, varname='Test'):
     if name is None:
         name = get_test_filename()
-    nc = Dataset(name, 'rw')
+    nc = Dataset(name, 'w')
 
     # Create Dimensions
     dim_names = []
@@ -30,12 +29,12 @@ def create_test_file(name=None, numDims=3, dim_len=10, varname='Test'):
 
     # Create Variables for each dimension
     for dn in dim_names:
-        cur_var = nc.createVariable(dn, int, (dn))
+        cur_var = nc.createVariable(dn, float, (dn))
         cur_var[:] = np.random.rand(dim_len)
 
     # Create Primary Variable
-    cur_var = nc.createVariable(varname, int, tuple(dim_names))
-    cur_var[:] = np.random.rand([dim_len for i in dim_names])
+    cur_var = nc.createVariable(varname, float, tuple(dim_names))
+    cur_var[:] = np.random.rand(*[dim_len for i in dim_names])
     nc.close()
 
 
