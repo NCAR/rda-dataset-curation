@@ -6,7 +6,9 @@ import numpy as np
 import pdb
 import copyNC
 
-def collate(dim_name, files, varname=None, output_filename="out.nc" ):
+def collate(dim_name, files, varname=None, output_filename="out.nc"):
+    if output_filename is None:
+        output_filename = 'out.nc'
     # Open all files
     var_data = []
     dim_data = []
@@ -35,7 +37,7 @@ def is_primary_variable(varname, dims):
     return varname not in dims
 
 def get_dimension_variable(nc, dim_name):
-    return nc.variables['dim_name']
+    return nc.variables[dim_name]
 
 def get_primary_variable(nc):
     """Only returns one variable even if there are multiple primary variables"""
@@ -60,7 +62,7 @@ if __name__ == '__main__':
         args = parser.parse_args(['-h'])
         exit(1)
     args = parser.parse_args()
-    collate(args.dimname, args.files, varname=args.varname, outfile=args.outfile)
+    collate(args.dimname, args.files, varname=args.varname, output_filename=args.outfile)
 
 
 
