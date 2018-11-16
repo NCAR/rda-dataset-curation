@@ -25,10 +25,10 @@ def collate(dim_name, files, varname=None, output_filename="out.nc" ):
     new_dim_data = np.concatenate(dim_data, axis=0)
 
 
-    nc = copyNC.copy(files[0], output_filename)
-    nc.variables[pv] =
-    return (new_dim_data, new_var_data)
-
+    nc = copyNC.copy(files[0], output_filename, dim_name, varname)
+    nc.createDimension('dim_name', len(new_dim_data))
+    nc.createVariable(varname, new_var_data.dtype, pv.dimensions)
+    nc.close()
 
 
 def is_primary_variable(varname, dims):
