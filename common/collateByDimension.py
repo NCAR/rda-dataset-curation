@@ -19,7 +19,8 @@ def collate(dim_name, files, varname=None, output_filename="out.nc"):
         else:
             pv = varname
         dv = get_dimension_variable(nc, dim_name)
-        var_data.append(pv[:])
+        primary_var = nc.variables[pv]
+        var_data.append(primary_var[:])
         dim_data.append(dv[:])
         nc.close()
     # Combine data
