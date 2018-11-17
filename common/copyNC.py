@@ -22,11 +22,17 @@ def copy_nccopy(filename, new_filename):
             exit(1)
     except:
         print("nccopy not found, trying ncks")
-        copy_ncks
+        copy_ncks(filename, new_filename)
 
 def copy_ncks(filename, new_filename, removeVars=[]):
     if len(removeVars) == 0:
         rc = call(['ncks',filename, new_filename])
+        if rc != 1:
+            print("ncks failed")
+            exit(1)
+        else:
+            exit(0)
+    # or, if there are variables to remove
     rc = call(['ncks','-x','-v',','.join(removeVars),filename, new_filename])
     if rc != 0:
         print("ncks failed, exiting")

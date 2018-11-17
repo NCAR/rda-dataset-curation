@@ -9,7 +9,7 @@ name = create_nc.create()
 name2 = create_nc.create()
 
 
-cbd.collate(, ['test1.nc','test2.nc'], varname=None, output_filename="out.nc" )
+cbd.collate('B', [name,name2], varname=None, output_filename="out.nc" )
 
 
 call(['rm', name])
