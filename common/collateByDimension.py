@@ -69,5 +69,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
     collate(args.dimname, args.files, varname=args.varname, output_filename=args.outfile)
 
-
-
