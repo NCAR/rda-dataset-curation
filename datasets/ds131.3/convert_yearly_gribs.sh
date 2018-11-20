@@ -33,11 +33,8 @@ exple_dir=`ls -1 $in_dir | head -1 `
 #echo "37:2523073:d=1836051206:TMP:700 mb:anl:ens mean" | awk -F : '{print($4":"$5":"$6)}'
 for i in $in_dir/$exple_dir/*anl*.grb2; do
     wgrib2 $i | awk -F : '{print($4);}' | sort -u >> tmp_grb2_param_inv_anl
-    wgrib2 $i | awk -F : '{print($5);}' | sed 's/[0-9]//g' | sed 's/\.//g' | sort -u >> tmp_grb2_param_inv_anl
+    wgrib2 $i | awk -F : '{print($5);}' | sed 's/[0-9]//g' | sed 's/\.//g' | sort -u >> tmp_grb2_level_inv_anl
 done
-cat tmp_grb2_inv | sort -u > tmp_grb2_inv2
-exit
-
 # Start processing
 for dir in $in_dir/*; do
     dir_basename=`basename $dir`
@@ -56,7 +53,11 @@ for dir in $in_dir/*; do
     cp $dir/*obs* $obs_dir
 done
 
-
 # Post processing
+#for i in `wgrib $working_dir/anl/${year}mean.grb2`; do
+#    filename=`echo $i | sed 's/:/_/g' | sed 's/ /_/g'`
+#    wgrib2 $working_dir/anl/${year}mean.grb2 | grep $i | wgrib2 $working_dir/anl/${year}mean.grb2 -i -grib ${filename}.grib
+#done
 tar -cvzf $working_dir/obs_$year.tgz $working_dir/obs
+
 

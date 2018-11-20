@@ -26,14 +26,24 @@ def copy_nccopy(filename, new_filename):
 
 def copy_ncks(filename, new_filename, removeVars=[]):
     if len(removeVars) == 0:
-        rc = call(['ncks',filename, new_filename])
+        try:
+            rc = call(['ncks',filename, new_filename])
+        except Exception as e:
+            print(e)
+            print("Try 'module load nco' or add ncks to your PATH")
+            exit(1)
         if rc != 1:
             print("ncks failed")
             exit(1)
         else:
             exit(0)
     # or, if there are variables to remove
-    rc = call(['ncks','-x','-v',','.join(removeVars),filename, new_filename])
+    try:
+        rc = call(['ncks','-C','-x','-v',','.join(removeVars),filename, new_filename])
+    except FileNotFoundError as e:
+        print(e)
+        print("Try 'module load nco' or add ncks to your PATH")
+        exit(1)
     if rc != 0:
         print("ncks failed, exiting")
         exit(1)

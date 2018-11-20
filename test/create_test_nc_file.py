@@ -20,42 +20,51 @@ def get_test_filename():
 def create(name=None, num_dims=3, dim_len=10, varname='Test'):
     """Creates raw test file.
     """
+    user_specified_dims = False
     ## Handle bad command line args
     if num_dims is None:
         num_dims=3
     if dim_len is None:
         dim_len = 10
+    if type(dim_len) is tuple:
+        user_specified_dims = True
     if varname is None:
         varname = 'Test'
     if name is None:
         name = get_test_filename()
 
-
     nc = Dataset(name, 'w')
 
     # Create Dimensions
     dim_names = []
-    for i in range(65,65+num_dims):
-        cur_dim_name = chr(i)
+    for i,letter in enumerate(range(65,65+num_dims)): # The letter 'A' -> A+num_dims
+        cur_dim_name = chr(letter)
         dim_names.append(cur_dim_name)
-        nc.createDimension(cur_dim_name, dim_len)
+        cur_dim_len = dim_len
+        if user_specified_dims:
+            cur_dim_len = dim_len[i]
+        nc.createDimension(cur_dim_name, cur_dim_len)
 
     # Create Variables
 
     # Create Variables for each dimension
-    for dn in dim_names:
+    for i,dn in enumerate(dim_names):
         cur_var = nc.createVariable(dn, float, (dn))
-        cur_var[:] = np.random.rand(dim_len)
+        cur_dim_len = dim_len
+        if user_specified_dims:
+            cur_dim_len = dim_len[i]
+        cur_var[:] = np.random.rand(cur_dim_len)
 
     # Create Primary Variable
     cur_var = nc.createVariable(varname, float, tuple(dim_names))
-    cur_var[:] = np.random.rand(*[dim_len for i in dim_names])
+
+    cur_dim_len = dim_len
+    if user_specified_dims:
+        cur_var[:] = np.random.rand(dim_len)
+    else:
+        cur_var[:] = np.random.rand(*[dim_len for i in dim_names])
     nc.close()
     return name
-
-
-
-
 
 
 description = "Creates a test netcdf file."
