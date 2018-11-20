@@ -23,19 +23,32 @@ year=`basename $in_dir | grep -o "[0-9][0-9][0-9][0-9]"`
 echo "Processing year: $year"
 echo "Initializing output directories"
 working_dir=$out_dir/$year
-mkdir $working_dir
+mkdir $working_dir 2>/dev/null
 mkdir $working_dir/obs
 mkdir $working_dir/fg
 mkdir $working_dir/anl
 
 # Get temp file for example output
+exple_dir=`ls -1 $in_dir | head -1`
+echo "37:2523073:d=1836051206:TMP:700 mb:anl:ens mean" | awk -F : '{print($4":"$5":"$6)}'
 for dir in $in_dir/*; do
-    echo $dir
     dir_basename=`basename $dir`
     echo "Processing $dir_basename"
-    obs_dir=$working_dir/obs/$dir_basename
-    mkdir $obs_dir
-    cp $dir/*obs* $obs_dir
 
+    # Analysis spread and mean
+    cat $dir/*sprdanl* >> $working_dir/anl/${year}sprd.grb1
+    cat $dir/*meananl* >> $working_dir/anl/${year}mean.grb2
+
+    # First Guess
+    cat $dir/*fg* >> $working_dir/fg/${year}mean.grb2
+
+    # Obs
+    obs_dir=$working_dir/obs/$dir_basename
+    mkdir $obs_dir 2>/dev/null
+    cp $dir/*obs* $obs_dir
 done
+
+
+# Post processing
+tar -cvzf $working_dir/obs_$year.tgz $working_dir/obs
 
