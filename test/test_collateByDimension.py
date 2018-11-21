@@ -15,13 +15,16 @@ dimension_name = 'B'
 try:
     print("Testing Collate")
     cbd.collate(dimension_name, [filename,filename2], varname=None, output_filename="out.nc" )
-except Exception as:
+except Exception as e:
     print(e)
 
 print("Asserting truth")
-testnc = None
 outnc = Dataset('out.nc')
+assert outnc.variables['B'].shape[0] == 20
+assert outnc.variables['Test'].shape[1] == 20
+print("Truth asserted")
 
+print("cleaning up")
 call(['rm', 'out.nc'])
 call(['rm', filename])
 call(['rm', filename2])
