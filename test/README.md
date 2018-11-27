@@ -5,7 +5,7 @@ This directory provides test cases for code found in the `common/` and `datasets
 - [create_test_nc_file](#create_test_nc_filepy)
   + [Usage](#usage)
   + [Basic Example](#basic-example)
-  + [Exmple with arguments](exmple-with-arguments)
+  + [Example with arguments](example-with-arguments)
 
 ## create_test_nc_file.py
 
