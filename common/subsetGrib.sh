@@ -5,57 +5,52 @@
 #
 ########
 #
-# Usage : ./subsetGrib [grib_file] [--nolevel] [-o/--outdir out_dir]
+# Usage : ./subsetGrib  [--nolevel] [-o/--outdir out_dir] [grib_file1, grib_file2, ... ]
 #            grib_file      :  File to process. Can be grib 1 or 2
 #           -n  --nolevel   :  Don't combine level into one grib
 #           -o  --outdir    :
 #
 #########
-echo "$@"
-while [[ $@ ]]; do
-    echo $1
-    shift
-done
-exit
-ops=`getopt -o o::,n --long outdir::,nolevel -n 'subsetGrib.sh' -- "$@"  `
-echo $opts
-echo
-#eval set -- "$opts"
-exit
-echo $opts
-echo
+usage()
+{
+    echo "subsetGrib.sh"
+    echo "-------------"
+    echo "Given 1 or more grib files, this program will attempt create/append each parameter to an individual file."
+    echo
+    echo "Usage : ./subsetGrib  [--nolevel] [-o/--outdir out_dir] [grib_file1, grib_file2, ... ]"
+    echo "            grib_file       :  File to process. Can be grib 1 or 2"
+    echo "            -n  --nolevel   :  Don't combine level into one grib"
+    echo "            -o  --outdir    :  Directory to place files. Defaults to ./"
+    echo
+    exit 1
+}
+if [[ $# -lt 1 ]]; then
+    usage
+fi
 combineLevel=0
+outDir="./"
 files=""
 # extract options and their arguments into variables.
-while true ; do
+while [[ $@ ]]; do
     case "$1" in
         -o|--outdir)
-            echo atout;
-            echo $2
-            case "$2" in
-                "") outdir='.' ; shift 2 ;;
-                *) outdir=$2 ; shift 2 ;;
-            esac ;;
-        -n|--nolevel) combineLevel=1 ; shift ;;
-        --) shift ; break ;;
-        *) echo "here"; files="$files $1"; shift ;;
+            outDir=$2
+            shift 2 ;;
+        -n|--nolevel) combineLevel=1; shift ;;
+        *) files="$files $1"; shift ;;
     esac
 done
-echo $1
 if [[ -z $files ]];then
     echo "No input files, exiting"
     exit 1
 fi
-echo "$outdir"
-echo "$combineLevel"
-echo "$files"
-
-
-
-
-
-
-
+combineLevelStr="False"
+if [[ $combineLevel -eq 1 ]]; then combineLevelStr="True"; fi
+echo "Settings"
+echo "--------"
+echo "Combine Level    : $combineLevelStr"
+echo "Output Directory : $outDir"
+echo "Files to Process : $files"
 
 
 

@@ -20,14 +20,17 @@ def findVariable(nc):
     for i in nc.variables:
         return i
 
-description = "Compares two netCDF file's variables. \
-               Prints 'True' or 'False'. And, \
+description = "Compares two netCDF file's variables.\n \
+               Prints 'True' or 'False'. And,\n \
                Returns 0 for true and 1 for false. Does not handle NetCDF groups"
-parser = argparse.ArgumentParser(prog='compareNetCDFData', description=description)
+parser = argparse.ArgumentParser(
+        prog='compareNetCDFData',
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('file1', type=str,  help="Specify the name of first netCDF file")
 parser.add_argument('file2', type=str, help="Specify the name of second netCDF file")
-parser.add_argument('-v1', type=str, help="Specify the name of the variable in first file")
-parser.add_argument('-v2', type=str, help="Specify the name of the variable in second file")
+parser.add_argument('-v1', type=str, help="Specify the name of the variable in first file\n(Default compares all variables)")
+parser.add_argument('-v2', type=str, help="Specify the name of the variable in second file\n(Default compares all variables)")
 if len(sys.argv) == 1:
     args = parser.parse_args(['-h'])
     exit(99)
