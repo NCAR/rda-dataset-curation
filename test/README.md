@@ -2,7 +2,7 @@ This directory provides test cases for code found in the `common/` and `datasets
 
 # Useful testing utilities
 
-##create_test_nc_file.py
+## create_test_nc_file.py
 
 ### Usage
 ```
