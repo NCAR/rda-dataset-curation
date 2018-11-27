@@ -45,7 +45,7 @@ variables:
     double Test(A, B, C) ;
 }
 ```
-### Exmple with arguments
+### Example with arguments
 ```
 rda-dataset-curation/test> ./create_test_nc_file.py -fn 'my_test.nc' -n 2 -dl 180 -v 'temperature'
 my_test.nc
