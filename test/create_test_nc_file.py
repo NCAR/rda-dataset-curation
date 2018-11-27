@@ -76,8 +76,8 @@ parser.add_argument('--varname','-v', type=str, help="Specify primary variable's
 
 args = parser.parse_args()
 name = create(name=args.filename,
-        num_dims=args.num_dims,
-        dim_len=args.dim_length,
+        num_dims=int(args.num_dims),
+        dim_len=int(args.dim_length),
         varname=args.varname)
 
 print(name)
