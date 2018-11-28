@@ -24,6 +24,22 @@ usage()
     echo
     exit 1
 }
+separateWgrib()
+{
+    IFS=$'\n' # Make separator \n
+    file=$1
+    inv=`wgrib $file`
+    for i in $inv; do
+        param=`echo $i | awk -F: '{print $4}'`
+        echo $param
+#wgrib pgrbenssprdanl_1981010103 | grep `cat param.junk | head -5 | tail -1` | wgrib -i pgrbenssprdanl_1981010103 -grib -append -o grb.out
+
+    done
+}
+separateWgrib2()
+{
+    file=$1
+}
 if [[ $# -lt 1 ]]; then
     usage
 fi
@@ -51,6 +67,37 @@ echo "--------"
 echo "Combine Level    : $combineLevelStr"
 echo "Output Directory : $outDir"
 echo "Files to Process : $files"
+
+echo
+
+
+for file in $files; do
+    echo "Processing -- $file"
+
+    # Get correct wgrib decoder
+    isGrib=`./isGrib1.py $file`
+    if [[ $isGrib == 'True' ]]; then
+        wgrib=`which wgrib`
+        echo "Using wgrib"
+        separateWgrib $file
+    elif [[ $isGrib == 'False' ]]; then
+        wgrib=`which wgrib2`
+        echo "Using wgrib2"
+        separateWgrib2 $file
+    else
+        echo "ERROR: $file is not a grib file"
+        echo "exiting"
+        exit
+    fi
+
+
+done
+
+
+
+
+
+
 
 
 
