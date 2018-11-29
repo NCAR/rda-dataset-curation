@@ -24,17 +24,48 @@ usage()
     echo
     exit 1
 }
-separateWgrib()
+separateWgribParams()
 {
     IFS=$'\n' # Make separator \n
     file=$1
-    inv=`wgrib $file`
-    for i in $inv; do
-        param=`echo $i | awk -F: '{print $4}'`
-        echo $param
-#wgrib pgrbenssprdanl_1981010103 | grep `cat param.junk | head -5 | tail -1` | wgrib -i pgrbenssprdanl_1981010103 -grib -append -o grb.out
+    outdir=$2
+    fileBasename=`basename $file`
+    params=`wgrib $file | awk -F: '{print $4}' | sort -u`
+    for param in $params; do
+        echo "separating $param"
+        outfile="${outdir}${fileBasename}_${param}_All_Levels"
+        wgrib $file | grep $param | wgrib -i $file -grib -append -o $outfile
+    done
+}
+separateWgribLevels()
+{
+    IFS=$'\n' # Make separator \n
+    file=$1
+    outdir=$2
+    fileBasename=`basename $file`
+    levels=`wgrib $file | awk -F: '{print $12}' | sort -u`
+    echo "levels are"
+    echo $levels
+    # change outfile depending on the level
+    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' )
+    levels_len=${#grepLevels[@]}
+    echo "len $levels_len"
+    for level in $levels; do
+        for(( i=0; i<$levels_len; i++ )); do
+
+            echo "||${grepLevels[$i]}||"
+            echo "||$level||"
+            echo $level | grep "${grepLevels[$i]}"
+            rc=$?
+            if [[ $rc -eq 0 ]]; then
+                outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
+                wgrib $file | grep $level | wgrib -i $file -grib -append -o $outfile
+                break
+            fi
+        done
 
     done
+
 }
 separateWgrib2()
 {
@@ -44,13 +75,13 @@ if [[ $# -lt 1 ]]; then
     usage
 fi
 combineLevel=0
-outDir="./"
+outdir="./"
 files=""
 # extract options and their arguments into variables.
 while [[ $@ ]]; do
     case "$1" in
         -o|--outdir)
-            outDir=$2
+            outdir=$2
             shift 2 ;;
         -n|--nolevel) combineLevel=1; shift ;;
         *) files="$files $1"; shift ;;
@@ -65,7 +96,7 @@ if [[ $combineLevel -eq 1 ]]; then combineLevelStr="True"; fi
 echo "Settings"
 echo "--------"
 echo "Combine Level    : $combineLevelStr"
-echo "Output Directory : $outDir"
+echo "Output Directory : $outdir"
 echo "Files to Process : $files"
 
 echo
@@ -73,13 +104,16 @@ echo
 
 for file in $files; do
     echo "Processing -- $file"
+    separateWgribLevels $file $outdir
+    exit
 
     # Get correct wgrib decoder
     isGrib=`./isGrib1.py $file`
     if [[ $isGrib == 'True' ]]; then
         wgrib=`which wgrib`
         echo "Using wgrib"
-        separateWgrib $file
+        separateWgribParams $file $outdir
+
     elif [[ $isGrib == 'False' ]]; then
         wgrib=`which wgrib2`
         echo "Using wgrib2"
@@ -92,10 +126,6 @@ for file in $files; do
 
 
 done
-
-
-
-
 
 
 
