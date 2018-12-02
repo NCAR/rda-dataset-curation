@@ -81,4 +81,15 @@ Usage: isGrib1 [file]
 ```
 ### Example
 ```
+$ ./isGrib1 a_grib_1_file.grb
+True
+$ echo $?
+0
+$ ./isGrib1 a_grib_2_file.grb
+False
+$ echo $?
+1
+$ ./isGrib1 TPS_report.doc
+$ echo $?
+99
 ```
