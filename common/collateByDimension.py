@@ -4,7 +4,12 @@ from netCDF4 import Dataset
 import argparse
 import numpy as np
 import pdb
-from .copyNC import copy
+
+#TODO: improve this
+try:
+    from .copyNC import copy
+except:
+    from copyNC import copy
 
 def collate(dim_name, files, varname=None, output_filename="out.nc"):
     if output_filename is None:
