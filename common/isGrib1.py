@@ -3,10 +3,11 @@ import sys,os
 
 
 def usage():
-    print("Usage: isGrib1 [file]\n");
-    print("Prints True (return code 0)");
-    print("Prints False (return code 1)");
-    print("Return code 99 if neither, or error")
+    print("Usage: isGrib1 [file]");
+    print("    Determines whether the given file is a grib1 file.\n");
+    print("    Prints True (return code 0)");
+    print("    Prints False (return code 1)");
+    print("    Return code 99 if neither, or error")
     exit(99)
 
 

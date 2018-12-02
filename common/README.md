@@ -7,6 +7,9 @@ This directory contains common routines that may be useful in dataset curation. 
 - [collateByDimension](#collateByDimension)
   + [Usage](#usage-1)
   + [Example](#example-1)
+- [isGrib1](#isGrib1)
+  + [Usage](#usage-2)
+  + [Example](#example-2)
 
 ## compareNetCDFData
 Used to compare two netCDF files to test for equivalence.
@@ -62,4 +65,20 @@ optional arguments:
                         Specify the name of the output filename
 ```
 ### Example
-TODO
+```TODO```
+
+## isGrib1
+
+### Usage
+```
+rda-dataset-curation/common> ./isGrib1.py 
+Usage: isGrib1 [file]
+    Determines whether the given file is a grib1 file.
+
+    Prints True (return code 0)
+    Prints False (return code 1)
+    Return code 99 if neither, or error
+```
+### Example
+```
+```
