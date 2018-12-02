@@ -5,8 +5,8 @@ This directory contains common routines that may be useful in dataset curation. 
   + [Usage](#usage)
   + [Example](#example)
 - [collateByDimension](#collateByDimension)
-  + [Usage](#usage)
-  + [Example](#example)
+  + [Usage](#usage-1)
+  + [Example](#example-1)
 
 ## compareNetCDFData
 Used to compare two netCDF files to test for equivalence.
