@@ -4,6 +4,7 @@ usage()
 {
     echo "Usage:"
     echo "convert_yearly_gribs.sh [in_dir] [out_dir]"
+    echo "in_dir"
     exit 1
 }
 
@@ -53,11 +54,6 @@ for dir in $in_dir/*; do
     cp $dir/*obs* $obs_dir
 done
 
-# Post processing
-#for i in `wgrib $working_dir/anl/${year}mean.grb2`; do
-#    filename=`echo $i | sed 's/:/_/g' | sed 's/ /_/g'`
-#    wgrib2 $working_dir/anl/${year}mean.grb2 | grep $i | wgrib2 $working_dir/anl/${year}mean.grb2 -i -grib ${filename}.grib
-#done
 tar -cvzf $working_dir/obs_$year.tgz $working_dir/obs
 
 
