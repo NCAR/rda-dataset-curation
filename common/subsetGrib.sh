@@ -29,7 +29,8 @@ separateWgribParams()
     IFS=$'\n' # Make separator \n
     file=$1
     outdir=$2
-    fileBasename=`basename $file`
+    fileBasename=`basename $file | sed 's/_[0-9]*//g'`
+    echo "basename is $fileBasename"
     params=`wgrib $file | awk -F: '{print $4}' | sort -u`
     for param in $params; do
         echo "separating $param"
@@ -89,13 +90,18 @@ if [[ -z $files ]];then
     echo "No input files, exiting"
     exit 1
 fi
+if [[ `echo $outdir | grep -o ".$"` != '/' ]]; then
+    outdir="${outdir}/"
+fi
 combineLevelStr="False"
+scriptDir=`dirname "$0"`
 if [[ $combineLevel -eq 1 ]]; then combineLevelStr="True"; fi
 echo "Settings"
 echo "--------"
 echo "Combine Level    : $combineLevelStr"
 echo "Output Directory : $outdir"
 echo "Files to Process : $files"
+echo "Common/ dir      : $scriptDir"
 
 echo
 
@@ -104,7 +110,7 @@ for file in $files; do
     echo "Processing -- $file"
 
     # Get correct wgrib decoder
-    isGrib=`./isGrib1.py $file`
+    isGrib=`$scriptDir/isGrib1.py $file`
     if [[ $isGrib == 'True' ]]; then
         wgrib=`which wgrib`
         echo "Using wgrib"

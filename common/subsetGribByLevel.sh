@@ -73,6 +73,9 @@ if [[ -z $files ]];then
     echo "No input files, exiting"
     exit 1
 fi
+if [[ `echo $outdir | grep -o ".$"` != '/' ]]; then
+    outdir="${outdir}/"
+fi
 echo "Settings"
 echo "--------"
 echo "Combine Level    : $combineLevelStr"
@@ -81,12 +84,13 @@ echo "Files to Process : $files"
 
 echo
 
+scriptDir=`dirname "$0"`
 
 for file in $files; do
     echo "Processing -- $file"
 
     # Get correct grib decoder
-    isGrib=`./isGrib1.py $file`
+    isGrib=`$scriptDir/isGrib1.py $file`
     if [[ $isGrib == 'True' ]]; then
         wgrib=`which wgrib`
         echo "Using wgrib"
