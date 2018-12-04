@@ -29,11 +29,12 @@ separateWgribLevels()
     file=$1
     outdir=$2
     fileBasename=`basename $file`
-    levels=`wgrib $file | awk -F: '{print $12}' | sort -u`
+    wgrib $file > inventory
+    levels=`cat inventory | awk -F: '{print $12}' | sort -u`
     echo "levels are"
-    echo $levels
+    echo "$levels\n"
     # change outfile depending on the level--is a regex
-    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' )
+    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' 'top' )
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     for level in $levels; do
@@ -41,14 +42,18 @@ separateWgribLevels()
 
             echo "||${grepLevels[$i]}||"
             echo "||$level||"
-            echo $level | grep "${grepLevels[$i]}"
+            echo $level | grep "${grepLevels[$i]}" > /dev/null 2>&1
             rc=$?
             if [[ $rc -eq 0 ]]; then
                 outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
-                wgrib $file | grep $level | wgrib -i $file -grib -append -o $outfile
+                cat inventory | grep $level | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
                 break
             fi
         done
+        if [[ $i -eq $levels_len ]]; then
+            echo "Can't find level: $level"
+            exit 1
+        fi
     done
 }
 separateWgrib2Levels()

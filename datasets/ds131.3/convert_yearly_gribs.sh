@@ -49,6 +49,16 @@ for anlFile in `find $in_dir | grep 'sprdanl' | sort`; do
         exit 1
     fi
 done
+for anlFile in $anlDir/*; do
+    $subsetLevelExe $anlFile -o $anlDir
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo "subsetParamByLevel Failed on $anlFile"
+        exit 1
+    fi
+done
+rm $anlDir/*All_Levels*
+
 
 
 ## Get temp file for example output
