@@ -41,14 +41,14 @@ subsetParamExe="$common_dir/subsetGrib.sh"
 subsetLevelExe="$common_dir/subsetGribByLevel.sh"
 
 # Spread Analysis - finds all files and subset's by param
-for anlFile in `find $in_dir | grep 'sprdanl' | sort`; do
-    $subsetParamExe $anlFile -o $anlDir
-    rc=$?
-    if [[ $rc -ne 0 ]]; then
-        echo "subsetParam Failed on $anlFile"
-        exit 1
-    fi
-done
+#for anlFile in `find $in_dir | grep 'sprdanl' | sort`; do
+#    $subsetParamExe $anlFile -o $anlDir
+#    rc=$?
+#    if [[ $rc -ne 0 ]]; then
+#        echo "subsetParam Failed on $anlFile"
+#        exit 1
+#    fi
+#done
 for anlFile in $anlDir/*; do
     $subsetLevelExe $anlFile -o $anlDir
     rc=$?
@@ -57,7 +57,7 @@ for anlFile in $anlDir/*; do
         exit 1
     fi
 done
-rm $anlDir/*All_Levels*
+#rm $anlDir/*All_Levels*
 
 
 

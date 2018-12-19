@@ -34,27 +34,52 @@ separateWgribLevels()
     echo "levels are"
     echo "$levels\n"
     # change outfile depending on the level--is a regex
-    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' 'top' )
+    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' 'top' 'high cld bot' )
+    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'convect_cld' 'top' 'high_cld_bot' )
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
-    for level in $levels; do
-        for(( i=0; i<$levels_len; i++ )); do
-
-            echo "||${grepLevels[$i]}||"
-            echo "||$level||"
-            echo $level | grep "${grepLevels[$i]}" > /dev/null 2>&1
-            rc=$?
-            if [[ $rc -eq 0 ]]; then
-                outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
-                cat inventory | grep $level | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
-                break
-            fi
-        done
-        if [[ $i -eq $levels_len ]]; then
-            echo "Can't find level: $level"
-            exit 1
+    totLines=0
+    totInv=`cat inventory | wc -l`
+    for(( i=0; i<$levels_len; i++ )); do
+        outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
+        cat inventory | grep ${grepLevels[$i]} > tmpInv
+        invLen=`cat tmpInv | wc -l`
+        totLines=$(( invLen + totLines ))
+        echo $invLen
+        echo $totLines
+        if [[ $invLen -ne 0 ]]; then
+            cat tmpInv | wgrib -i $file -grib -append -o $outfile #>/dev/null 2>&1
         fi
+        if [[ $totLines -eq $totInv ]]; then
+            echo "i is $i"
+            break;
+        fi
+
     done
+    echo $totLines
+    echo $totInv
+    if [[ $totLines -ne $totInv ]]; then
+        echo "off"
+        #exit 1
+    fi
+    #for level in $levels; do
+    #    for(( i=0; i<$levels_len; i++ )); do
+
+    #        echo "||${grepLevels[$i]}||"
+    #        echo "||$level||"
+    #        echo $level | grep "${grepLevels[$i]}" > /dev/null 2>&1
+    #        rc=$?
+    #        if [[ $rc -eq 0 ]]; then
+    #            outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
+    #            cat inventory | grep $level | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
+    #            break
+    #        fi
+    #    done
+    #    if [[ $i -eq $levels_len ]]; then
+    #        echo "Can't find level: $level"
+    #        exit 1
+    #    fi
+    #done
 }
 separateWgrib2Levels()
 {
