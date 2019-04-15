@@ -24,6 +24,16 @@ usage()
     echo
     exit 1
 }
+
+#######################################################
+# Separates a single grib file into grib files based
+# on unique parameters.
+# Example:
+# 1:64908676:d=36010200:VGRD:kpds5=34:kpds6=105:kpds7=10:TR=10:P1=0:P2=3:TimeU=1:10 m above gnd:3hr fcst:ensemble:std dev:NAve=0
+# 2:65138153:d=36010200:V-GWD:kpds5=148:kpds6=1:kpds7=0:TR=3:P1=0:P2=3:TimeU=1:sfc:0-3hr ave:ensemble:std dev:NAve=0
+#
+# Would become 2 files: VGRD_All_Levels.grb and V-GWD_All_Levels.grb
+#
 separateWgribParams()
 {
     IFS=$'\n' # Make separator \n
@@ -31,10 +41,10 @@ separateWgribParams()
     outdir=$2
     fileBasename=`basename $file | sed 's/_[0-9]*//g'`
     echo "basename is $fileBasename"
-    params=`wgrib $file | awk -F: '{print $4}' | sort -u`
+    params=`wgrib $file | awk -F: '{print $4}' | sort -u` # Get all Params
     for param in $params; do
         echo "separating $param"
-        outfile="${outdir}${fileBasename}_${param}_All_Levels"
+        outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
         wgrib $file | grep $param | wgrib -i $file -grib -append -o $outfile
     done
 }

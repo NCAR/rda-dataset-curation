@@ -49,6 +49,7 @@ subsetLevelExe="$common_dir/subsetGribByLevel.sh"
 #        exit 1
 #    fi
 #done
+echo "Completed subsetParam on sprdanl"
 for anlFile in $anlDir/*; do
     $subsetLevelExe $anlFile -o $anlDir
     rc=$?
