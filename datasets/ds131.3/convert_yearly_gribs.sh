@@ -41,14 +41,14 @@ subsetParamExe="$common_dir/subsetGrib.sh"
 subsetLevelExe="$common_dir/subsetGribByLevel.sh"
 
 # Spread Analysis - finds all files and subset's by param
-#for anlFile in `find $in_dir | grep 'sprdanl' | sort`; do
-#    $subsetParamExe $anlFile -o $anlDir
-#    rc=$?
-#    if [[ $rc -ne 0 ]]; then
-#        echo "subsetParam Failed on $anlFile"
-#        exit 1
-#    fi
-#done
+for anlFile in `find $in_dir | grep 'sprdanl' | sort`; do
+    $subsetParamExe $anlFile -o $anlDir
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo "subsetParam Failed on $anlFile"
+        exit 1
+    fi
+done
 echo "Completed subsetParam on sprdanl"
 for anlFile in $anlDir/*; do
     $subsetLevelExe $anlFile -o $anlDir
@@ -58,9 +58,16 @@ for anlFile in $anlDir/*; do
         exit 1
     fi
 done
-#rm $anlDir/*All_Levels*
+rm $anlDir/*All_Levels*
+
+for anlFile in $anlDir/*; do
+    filename=`echo $anlFile | sed "s/pgrbenssprdanl/anl_spread_$year/" | sed 's/grb/nc/'`
+    echo $filename
+    cfgrib to_netcdf $anlFile -o $filename
+done
 
 
+exit 1
 
 ## Get temp file for example output
 #exple_dir=`ls -1 $in_dir | head -1 `

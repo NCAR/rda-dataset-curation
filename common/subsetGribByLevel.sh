@@ -32,35 +32,37 @@ separateWgribLevels()
     wgrib $file > inventory
     levels=`cat inventory | awk -F: '{print $12}' | sort -u`
     echo "levels are"
-    echo "$levels\n"
+    echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' 'top' 'high cld bot' )
-    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'convect_cld' 'top' 'high_cld_bot' )
+    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb:" 'K$' 'MSL' 'atmos col' 'nom. top' 'cld|low cld|mid cld' '300K|350K|330K')
+    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'convect_cld' 'nom_top' 'cld_lvl' 'K')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
     totInv=`cat inventory | wc -l`
     for(( i=0; i<$levels_len; i++ )); do
         outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
-        cat inventory | grep ${grepLevels[$i]} > tmpInv
+        cat inventory | egrep ${grepLevels[$i]} > tmpInv
         invLen=`cat tmpInv | wc -l`
         totLines=$(( invLen + totLines ))
-        echo $invLen
-        echo $totLines
-        if [[ $invLen -ne 0 ]]; then
-            cat tmpInv | wgrib -i $file -grib -append -o $outfile #>/dev/null 2>&1
+        if [[ $invLen -gt 0 ]]; then
+            echo $invLen
+            echo $totLines
         fi
+        if [[ $invLen -ne 0 ]]; then
+            cat tmpInv | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
+        fi
+
+    done
         if [[ $totLines -eq $totInv ]]; then
             echo "i is $i"
             break;
         fi
-
-    done
     echo $totLines
     echo $totInv
     if [[ $totLines -ne $totInv ]]; then
         echo "off"
-        #exit 1
+        exit 1
     fi
     #for level in $levels; do
     #    for(( i=0; i<$levels_len; i++ )); do

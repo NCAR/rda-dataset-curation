@@ -45,7 +45,7 @@ separateWgribParams()
     for param in $params; do
         echo "separating $param"
         outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
-        wgrib $file | grep $param | wgrib -i $file -grib -append -o $outfile
+        wgrib $file | grep $param | wgrib -i $file -grib -append -o $outfile >/dev/null
     done
 }
 separateWgribLevels()
@@ -70,7 +70,7 @@ separateWgribLevels()
             rc=$?
             if [[ $rc -eq 0 ]]; then
                 outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
-                wgrib $file | grep $level | wgrib -i $file -grib -append -o $outfile
+                wgrib $file | grep $level | wgrib -i $file -grib -append -o $outfile 2>/dev/null
                 break
             fi
         done

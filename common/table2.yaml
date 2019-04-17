@@ -1,0 +1,706 @@
+000 Reserved                                                            
+'001' :
+    "name" : "Pressure"
+    "units" : "Pa"
+'002' :
+    "name" : "Pressure reduced to MSL"
+    "units" : "Pa"
+'003' :
+    "name" : "Pressure tendency"
+    "units" : "Pa/s"
+'005' :
+    "name" : "ICAO Standard Atmosphere Reference Hgt"
+    "units" : "M"
+'006' :
+    "name" : "Geopotential"
+    "units" : "m2/s2"
+'007' :
+    "name" : "Geopotential height"
+    "units" : "gpm"
+'008' :
+    "name" : "Geometric height"
+    "units" : "m"
+'009' :
+    "name" : "Standard deviation of height"
+    "units" : "m"
+'010' :
+    "name" : "Total ozone"
+    "units" : "Dobson"
+'011' :
+    "name" : "Temperature"
+    "units" : "K"
+'012' :
+    "name" : "Virtual temperature"
+    "units" : "K"
+'013' :
+    "name" : "Potential temperature"
+    "units" : "K"
+'014' :
+    "name" : "Pseudo-adiabatic potential temperature or equivalent potential temperature"
+    "units" : "K"
+'015' :
+    "name" : "Maximum temperature"
+    "units" : "K"
+'016' :
+    "name" : "Minimum temperature"
+    "units" : "K"
+'017' :
+    "name" : "Dew point temperature"
+    "units" : "K"
+'018' :
+    "name" : "Dew point depression (or deficit)"
+    "units" : "K"
+'019' :
+    "name" : "Lapse rate"
+    "units" : "K/m"
+'020' :
+    "name" : "Visibility"
+    "units" : "m"
+
+'021' :
+    "name" : "Radar Spectra (1)"
+    "units" : "-"
+'022' :
+    "name" : "Radar Spectra (2)"
+    "units" : "-"
+'023' :
+    "name" : "Radar Spectra (3)"
+    "units" : "-"
+'024' :
+    "name" : "Parcel lifted index (to 500 hPa)"
+    "units" : "K"
+'025' :
+    "name" : "Temperature anomaly"
+    "units" : "K"
+'026' :
+    "name" : "Pressure anomaly"
+    "units" : "Pa"
+'027' :
+    "name" : "Geopotential height anomaly"
+    "units" : "gpm"
+'028' :
+    "name" : "Wave Spectra (1)"
+    "units" : "-"
+'029' :
+    "name" : "Wave Spectra (2)"
+    "units" : "-"
+'030' :
+    "name" : "Wave Spectra (3)"
+    "units" : "-"
+'031' :
+    "name" : "Wind direction (from which blowing)"
+    "units" : "deg true"
+'032' :
+    "name" : "Wind speed"
+    "units" : "m/s"
+'033' :
+    "name" : "u-component of wind"
+    "units" : "m/s"
+'034' :
+    "name" : "v-component of wind"
+    "units" : "m/s"
+'035' :
+    "name" : "Stream function"
+    "units" : "m2/s"
+'036' :
+    "name" : "Velocity potential"
+    "units" : "m2/s"
+'037' :
+    "name" : "Montgomery stream function"
+    "units" : "m2/s2"
+'038' :
+    "name" : "Sigma coord. vertical velocity"
+    "units" : "/s"
+'039' :
+    "name" : "Pressure Vertical velocity"
+    "units" : "Pa/s"
+'040' :
+    "name" : "Geometric Vertical velocity"
+    "units" : "m/s"
+'041' :
+    "name" : "Absolute vorticity"
+    "units" : "/s"
+'042' :
+    "name" : "Absolute divergence"
+    "units" : "/s"
+'043' :
+    "name" : "Relative vorticity"
+    "units" : "/s"
+'044' :
+    "name" : "Relative divergence"
+    "units" : "/s"
+'045' :
+    "name" : "Vertical u-component shear"
+    "units" : "/s"
+'046' :
+    "name" : "Vertical v-component shear"
+    "units" : "/s"
+'047' :
+    "name" : "Direction of current"
+    "units" : "deg true"
+'048' :
+    "name" : "Speed of current"
+    "units" : "m/s"
+'049' :
+    "name" : "u-component of current"
+    "units" : "m/s"
+'050' :
+    "name" : "v-component of current"
+    "units" : "m/s"
+'051' :
+    "name" : "Specific humidity"
+    "units" : "kg/kg"
+'052' :
+    "name" : "Relative humidity"
+    "units" : "%"
+'053' :
+    "name" : "Humidity mixing ratio"
+    "units" : "kg/kg"
+'054' :
+    "name" : "Precipitable water"
+    "units" : "kg/m2"
+'055' :
+    "name" : "Vapor pressure"
+    "units" : "Pa"
+'056' :
+    "name" : "Saturation deficit"
+    "units" : "Pa"
+'057' :
+    "name" : "Evaporation"
+    "units" : "kg/m2"
+'058' :
+    "name" : "Cloud Ice"
+    "units" : "kg/m2"
+'059' :
+    "name" : "Precipitation rate"
+    "units" : "kg/m2/s"
+'060' :
+    "name" : "Thunderstorm probability"
+    "units" : "%"
+'061' :
+    "name" : "Total precipitation"
+    "units" : "kg/m2"
+'062' :
+    "name" : "Large scale precipitation (non-conv.)"
+    "units" : "kg/m2"
+'063' :
+    "name" : "Convective precipitation"
+    "units" : "kg/m2"
+'064' :
+    "name" : "Snowfall rate water equivalent"
+    "units" : "kg/m2/s"
+'065' :
+    "name" : "Water equiv. of accum. snow depth"
+    "units" : "kg/m2"
+'066' :
+    "name" : "Snow depth"
+    "units" : "m"
+'067' :
+    "name" : "Mixed layer depth"
+    "units" : "m"
+'068' :
+    "name" : "Transient thermocline depth"
+    "units" : "m"
+'069' :
+    "name" : "Main thermocline depth"
+    "units" : "m"
+'070' :
+    "name" : "Main thermocline anomaly"
+    "units" : "m"
+'071' :
+    "name" : "Total cloud cover"
+    "units" : "%"
+'072' :
+    "name" : "Convective cloud cover"
+    "units" : "%"
+'073' :
+    "name" : "Low cloud cover"
+    "units" : "%"
+'074' :
+    "name" : "Medium cloud cover"
+    "units" : "%"
+'075' :
+    "name" : "High cloud cover"
+    "units" : "%"
+'076' :
+    "name" : "Cloud water"
+    "units" : "kg/m2"
+'077' :
+    "name" : "Best lifted index (to 500 hPa)"
+    "units" : "K"
+'078' :
+    "name" : "Convective snow"
+    "units" : "kg/m2"
+'079' :
+    "name" : "Large scale snow"
+    "units" : "kg/m2"
+'080' :
+    "name" : "Water Temperature"
+    "units" : "K"
+'081' :
+    "name" : "Land-sea mask(land=1;sea=0)"
+    "units" : "fraction"
+'082' :
+    "name" : "Deviation of sea level from mean"
+    "units" : "m"
+'083' :
+    "name" : "Surface roughness"
+    "units" : "m"
+'084' :
+    "name" : "Albedo"
+    "units" : "%"
+'085' :
+    "name" : "Soil temperature"
+    "units" : "K"
+'086' :
+    "name" : "Soil moisture content"
+    "units" : "kg/m2"
+'087' :
+    "name" : "Vegetation"
+    "units" : "%"
+'088' :
+    "name" : "Salinity"
+    "units" : "kg/kg"
+'089' :
+    "name" : "Density"
+    "units" : "kg/m3"
+'090' :
+    "name" : "Water runoff"
+    "units" : "kg/m2"
+'091' :
+    "name" : "Ice concentration (ice=1;no ice=0)"
+    "units" : "fraction"
+'092' :
+    "name" : "Ice thickness"
+    "units" : "m"
+'093' :
+    "name" : "Direction of ice drift"
+    "units" : "deg. true"
+'094' :
+    "name" : "Speed of ice drift"
+    "units" : "m/s"
+'095' :
+    "name" : "u-component of ice drift"
+    "units" : "m/s"
+'096' :
+    "name" : "v-component of ice drift"
+    "units" : "m/s"
+'097' :
+    "name" : "Ice growth rate"
+    "units" : "m/s"
+'098' :
+    "name" : "Ice divergence"
+    "units" : "/s"
+'099' :
+    "name" : "Snow melt"
+    "units" : "kg/m2"
+'100' :
+    "name" : "Significant height of combined wind waves and swell"
+    "units" : "m"
+'101' :
+    "name" : "Direction of wind waves (from which)"
+    "units" : "deg true"
+'102' :
+    "name" : "Significant height of wind waves"
+    "units" : "m"
+'103' :
+    "name" : "Mean period of wind waves"
+    "units" : "s"
+'104' :
+    "name" : "Direction of swell waves"
+    "units" : "deg true"
+'105' :
+    "name" : "Significant height of swell waves"
+    "units" : "m"
+'106' :
+    "name" : "Mean period of swell waves"
+    "units" : "s"
+'107' :
+    "name" : "Primary wave direction"
+    "units" : "deg true"
+'108' :
+    "name" : "Primary wave mean period"
+    "units" : "s"
+'109' :
+    "name" : "Secondary wave direction"
+    "units" : "deg true"
+'110' :
+    "name" : "Secondary wave mean period"
+    "units" : "s"
+'111' :
+    "name" : "Net short-wave radiation (surface)"
+    "units" : "W/m2"
+'112' :
+    "name" : "Net long wave radiation (surface)"
+    "units" : "W/m2"
+'113' :
+    "name" : "Net short-wave radiation (top of atmos.)"
+    "units" : "W/m2"
+'114' :
+    "name" : "Net long wave radiation (top of atmos.)"
+    "units" : "W/m2"
+'115' :
+    "name" : "Long wave radiation"
+    "units" : "W/m2"
+'116' :
+    "name" : "Short wave radiation"
+    "units" : "W/m2"
+'117' :
+    "name" : "Global radiation"
+    "units" : "W/m2"
+'118' :
+    "name" : "Brightness temperature"
+    "units" : "K"
+'119' :
+    "name" : "Long-wave radiation"
+    "units" : "W/srm2"
+'120' :
+    "name" : "Short-wave radiation"
+    "units" : "W/srm2"
+'121' :
+    "name" : "Latent heat net flux"
+    "units" : "W/m2"
+'122' :
+    "name" : "Sensible heat net flux"
+    "units" : "W/m2"
+'123' :
+    "name" : "Boundary layer dissipation"
+    "units" : "W/m2"
+'124' :
+    "name" : "Momentum flux, u component"
+    "units" : "N/m2"
+'125' :
+    "name" : "Momentum flux, v component"
+    "units" : "N/m2"
+'126' :
+    "name" : "Wind mixing energy"
+    "units" : "J"
+'127' :
+    "name" : "Image data"
+'128' :
+    "name" : "Mean Sea Level Pressure"
+    "units" : "Pa"
+'129' :
+    "name" : "Mean Sea Level Pressure"
+    "units" : "Pa"
+'130' :
+    "name" : "Mean Sea Level Pressure"
+    "units" : "Pa"
+'131' :
+    "name" : "Surface lifted index"
+    "units" : "K"
+'132' :
+    "name" : "Best (4 layer) lifted index"
+    "units" : "K"
+'133' :
+    "name" : "K index"
+    "units" : "K"
+'134' :
+    "name" : "Sweat index"
+    "units" : "K"
+'135' :
+    "name" : "Horizontal moisture divergence"
+    "units" : "kg/kg/s"
+'136' :
+    "name" : "Vertical speed shear"
+    "units" : "1/s"
+'137' :
+    "name" : "3-hr pressure tendency"
+    "units" : "Pa/s"
+'138' :
+    "name" : "Brunt-Vaisala frequency (squared)"
+    "units" : "1/s2"
+'139' :
+    "name" : "Potential vorticity (density weighted)"
+    "units" : "1/s/m"
+'140' :
+    "name" : "Categorical rain  (yes=1; no=0)"
+    "units" : "non-dim"
+'141' :
+    "name" : "Categorical freezing rain  (yes=1; no=0)"
+    "units" : "non-dim"
+'142' :
+    "name" : "Categorical ice pellets  (yes=1; no=0)"
+    "units" : "non-dim"
+'143' :
+    "name" : "Categorical snow  (yes=1; no=0)"
+    "units" : "non-dim"
+'144' :
+    "name" : "Volumetric soil moisture content"
+    "units" : "fraction"
+'145' :
+    "name" : "Potential evaporation rate"
+    "units" : "W/m**2"
+'146' :
+    "name" : "Cloud workfunction"
+    "units" : "J/kg"
+'147' :
+    "name" : "Zonal flux of gravity wave stress"
+    "units" : "N/m**2"
+'148' :
+    "name" : "Meridional flux of gravity wave stress"
+    "units" : "N/m**2"
+'149' :
+    "name" : "Potential vorticity"
+    "units" : "m**2/s/kg"
+'150' :
+    "name" : "Covariance between meridional and zonal components of the wind"
+    "units" : "m2/s2"
+    "description" : "and zonal components of the wind. Defined as [uv]-[u][v], where '[]' indicates the mean over the indicated time span."
+'151' :
+    "name" : "Covariance between temperature and zonal component of the wind"
+    "units" : "K*m/s"
+    "description" : "Defined as [uT]-[u][T], where '[]' indicates the mean over the indicated time span."
+'152' :
+    "name" : "Covariance between temperature and meridional component of the wind"
+    "units" : "K*m/s"
+    "description" : "Defined as [vT]-[v][T], where '[]' indicates the mean  over the indicated time span."
+'153' :
+    "name" : "Cloud water"
+    "units" : "Kg/kg"
+'154' :
+    "name" : "Ozone mixing ratio"
+    "units" : "Kg/kg"
+'155' :
+    "name" : "Ground Heat Flux"
+    "units" : "W/m2"
+'156' :
+    "name" : "Convective inhibition"
+    "units" : "J/kg"
+'157' :
+    "name" : "Convective Available Potential Energy"
+    "units" : "J/kg"
+'158' :
+    "name" : "Turbulent Kinetic Energy"
+    "units" : "J/kg"
+'159' :
+    "name" : "Condensation pressure of parcel lifted from indicated surface"
+    "units" : "Pa"
+'160' :
+    "name" : "Clear Sky Upward Solar Flux"
+    "units" : "W/m2"
+'161' :
+    "name" : "Clear Sky Downward Solar Flux"
+    "units" : "W/m2"
+'162' :
+    "name" : "Clear Sky upward long wave flux"
+    "units" : "W/m2"
+'163' :
+    "name" : "Clear Sky downward long wave flux"
+    "units" : "W/m2"
+'164' :
+    "name" : "Cloud forcing net solar flux"
+    "units" : "W/m2"
+'165' :
+    "name" : "Cloud forcing net long wave flux"
+    "units" : "W/m2"
+'166' :
+    "name" : "Visible beam downward solar flux"
+    "units" : "W/m2"
+'167' :
+    "name" : "Visible diffuse downward solar flux"
+    "units" : "W/m2"
+'168' :
+    "name" : "Near IR beam downward solar flux"
+    "units" : "W/m2"
+'169' :
+    "name" : "Near IR diffuse downward solar flux"
+    "units" : "W/m2"
+'172' :
+    "name" : "Momentum flux"
+    "units" : "N/m2"
+'173' :
+    "name" : "Mass point model surface"
+    "units" : "non-dim"
+'174' :
+    "name" : "Velocity point model surface"
+    "units" : "non-dim"
+'175' :
+    "name" : "Model layer number (from bottom up)"
+    "units" : "non-dim"
+'176' :
+    "name" : "latitude (-90 to +90)"
+    "units" : "deg"
+'177' :
+    "name" : "east longitude (0-360)"
+    "units" : "deg"
+'181' :
+    "name" : "x-gradient of log pressure"
+    "units" : "1/m"
+'182' :
+    "name" : "y-gradient of log pressure"
+    "units" : "1/m"
+'183' :
+    "name" : "x-gradient of height"
+    "units" : "m/m"
+'184' :
+    "name" : "y-gradient of height"
+    "units" : "m/m"
+'189' :
+    "name" : "Virtual potential temperature"
+    "units" : "K"
+'190' :
+    "name" : "Storm relative helicity"
+    "units" : "m2/s2"
+'191' :
+    "name" : "Probability from ensemble"
+    "units" : "numeric"
+'192' :
+    "name" : "Probability from ensemble normalized with respect to climate expectancy"
+    "units" : "numeric"
+'193' :
+    "name" : "Probability of precipitation"
+    "units" : "%"
+'194' :
+    "name" : "Probability of frozen precipitation"
+    "units" : "%"
+'195' :
+    "name" : "Probability of freezing precipitation"
+    "units" : "%"
+'196' :
+    "name" : "u-component of storm motion"
+    "units" : "m/s"
+'197' :
+    "name" : "v-component of storm motion"
+    "units" : "m/s"
+'201' :
+    "name" : "Ice-free water surface"
+    "units" : "%"
+'204' :
+    "name" : "downward short wave rad. flux"
+    "units" : "W/m2"
+'205' :
+    "name" : "downward long wave rad. flux"
+    "units" : "W/m2"
+'206' :
+    "name" : "Ultra violet index (1 hour integration centered at solar noon)"
+    "units" : "J/m2"
+'207' :
+    "name" : "Moisture availability"
+    "units" : "%"
+'208' :
+    "name" : "Exchange coefficient"
+'209' :
+    "name" : "No. of mixed layers next to surface"
+    "units" : "integer"
+'211' :
+    "name" : "upward short wave rad. flux"
+    "units" : "W/m2"
+'212' :
+    "name" : "upward long wave rad. flux"
+    "units" : "W/m2"
+'213' :
+    "name" : "Amount of non-convective cloud"
+    "units" : "%"
+'214' :
+    "name" : "Convective Precipitation rate"
+    "units" : "kg/m2/s"
+'215' :
+    "name" : "Temperature tendency by all physics"
+    "units" : "K/s"
+'216' :
+    "name" : "Temperature tendency by all radiation"
+    "units" : "K/s"
+'217' :
+    "name" : "Temperature tendency by non-radiation physics"
+    "units" : "K/s"
+'218' :
+    "name" : "precip.index(0.0-1.00)(see note)"
+    "units" : "fraction"
+'219' :
+    "name" : "Std. dev. of IR T over 1x1 deg area"
+    "units" : "K"
+'220' :
+    "name" : "Natural log of surface pressure"
+    "units" : "ln(kPa)"
+'221' :
+    "name" : "Planetary boundary layer height"
+    "units" : "m"
+'222' :
+    "name" : "5-wave geopotential height"
+    "units" : "gpm"
+'223' :
+    "name" : "Plant canopy surface water"
+    "units" : "kg/m2"
+'226' :
+    "name" : "Blackadar's mixing length scale"
+    "units" : "m"
+'227' :
+    "name" : "Asymptotic mixing length scale"
+    "units" : "m"
+'228' :
+    "name" : "Potential evaporation"
+    "units" : "kg/m2"
+'229' :
+    "name" : "Snow phase-change heat flux"
+    "units" : "W/m2"
+'231' :
+    "name" : "Convective cloud mass flux"
+    "units" : "Pa/s"
+'232' :
+    "name" : "Downward total radiation flux"
+    "units" : "W/m2"
+'233' :
+    "name" : "Upward total radiation flux"
+    "units" : "W/m2"
+'234' :
+    "name" : "Baseflow-groundwater runoff"
+    "units" : "kg/m2"
+'235' :
+    "name" : "Storm surface runoff"
+    "units" : "kg/m2"
+'237' :
+    "name" : "Total ozone"
+    "units" : "Kg/m2"
+'238' :
+    "name" : "Snow cover"
+    "units" : "percent"
+'239' :
+    "name" : "Snow temperature"
+    "units" : "K"
+'241' :
+    "name" : "Large scale condensat. heat rate"
+    "units" : "K/s"
+'242' :
+    "name" : "Deep convective heating rate"
+    "units" : "K/s"
+'243' :
+    "name" : "Deep convective moistening rate"
+    "units" : "kg/kg/s"
+'244' :
+    "name" : "Shallow convective heating rate"
+    "units" : "K/s"
+'245' :
+    "name" : "Shallow convective moistening rate"
+    "units" : "kg/kg/s"
+'246' :
+    "name" : "Vertical diffusion heating rate"
+    "units" : "K/s"
+'247' :
+    "name" : "Vertical diffusion zonal acceleration"
+    "units" : "m/s2"
+'248' :
+    "name" : "Vertical diffusion meridional accel"
+    "units" : "m/s2"
+'249' :
+    "name" : "Vertical diffusion moistening rate"
+    "units" : "kg/kg/s"
+'250' :
+    "name" : "Solar radiative heating rate"
+    "units" : "K/s"
+'251' :
+    "name" : "long wave radiative heating rate"
+    "units" : "K/s"
+'252' :
+    "name" : "Drag coefficient"
+    "units" : "non-dim"
+'253' :
+    "name" : "Friction velocity"
+    "units" : "m/s"
+'254' :
+    "name" : "Richardson number"
+    "units" : "non-dim."
+'255' :
+    "name" : "Missing"
+
+
