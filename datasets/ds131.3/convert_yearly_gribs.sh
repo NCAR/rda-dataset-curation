@@ -73,7 +73,71 @@ for anlFile in $anlDir/*; do
     du -m $filename
 done
 
+# Mean Analysis - finds all files and subset's by param
+for anlFile in `find $in_dir | grep 'meananl' | sort`; do
+    $subsetParamExe $anlFile -o $anlDir
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo "subsetParam Failed on $anlFile"
+        exit 1
+    fi
+done
+echo "Completed subsetParam on meananl"
+for anlFile in $anlDir/*; do
+    $subsetLevelExe $anlFile -o $anlDir
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo "subsetParamByLevel Failed on $anlFile"
+        exit 1
+    fi
+done
+rm $anlDir/*All_Levels*
 
+for anlFile in $anlDir/*; do
+    filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
+    echo $filename
+    cfgrib to_netcdf $anlFile -o $filename
+    rm $anlFile
+    nccopy -d 6 $filename ${filename}.compressed
+    echo "Size before:"
+    du -m $filename
+    mv ${filename}.compressed $filename
+    echo "Size after:"
+    du -m $filename
+done
+exit 1
+# First guess spread - finds all first guess files and subsets by param
+for fgFile in `find $in_dir | grep 'sprdfg' | sort`; do
+    $subsetParamExe $fgFile -o $fgDir
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo "subsetParam Failed on $fgFile"
+        exit 1
+    fi
+done
+echo "Completed subsetParam on fg"
+for fgFile in $fgDir/*; do
+    $subsetLevelExe $fgFile -o $fgDir
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo "subsetParamByLevel Failed on $fgFile"
+        exit 1
+    fi
+done
+rm $fgDir/*All_Levels*
+
+for fgFile in $fgDir/*; do
+    filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_spread_$year/" | sed 's/grb/nc/'`
+    echo $filename
+    cfgrib to_netcdf $fgFile -o $filename
+    rm $fgFile
+    nccopy -d 6 $filename ${filename}.compressed
+    echo "Size before:"
+    du -m $filename
+    mv ${filename}.compressed $filename
+    echo "Size after:"
+    du -m $filename
+done
 exit 1
 
 ## Get temp file for example output
