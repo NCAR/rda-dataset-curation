@@ -64,6 +64,13 @@ for anlFile in $anlDir/*; do
     filename=`echo $anlFile | sed "s/pgrbenssprdanl/anl_spread_$year/" | sed 's/grb/nc/'`
     echo $filename
     cfgrib to_netcdf $anlFile -o $filename
+    rm $anlFile
+    nccopy -d 6 $filename ${filename}.compressed
+    echo "Size before:"
+    du -m $filename
+    mv ${filename}.compressed $filename
+    echo "Size after:"
+    du -m $filename
 done
 
 
