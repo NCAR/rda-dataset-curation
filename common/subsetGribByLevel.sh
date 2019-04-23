@@ -64,28 +64,49 @@ separateWgribLevels()
         echo "off"
         exit 1
     fi
-    #for level in $levels; do
-    #    for(( i=0; i<$levels_len; i++ )); do
-
-    #        echo "||${grepLevels[$i]}||"
-    #        echo "||$level||"
-    #        echo $level | grep "${grepLevels[$i]}" > /dev/null 2>&1
-    #        rc=$?
-    #        if [[ $rc -eq 0 ]]; then
-    #            outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
-    #            cat inventory | grep $level | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
-    #            break
-    #        fi
-    #    done
-    #    if [[ $i -eq $levels_len ]]; then
-    #        echo "Can't find level: $level"
-    #        exit 1
-    #    fi
-    #done
 }
 separateWgrib2Levels()
 {
+    IFS=$'\n' # Make separator \n
     file=$1
+    outdir=$2
+    fileBasename=`basename $file`
+    wgrib2 $file > inventory
+    levels=`cat inventory | awk -F: '{print $5}' | sort -u`
+    echo "levels are"
+    echo "$levels"
+    # change outfile depending on the level--is a regex
+    grepLevels=("surface" "m above" "m below" "sigma" "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'cloud|cld|low cld|mid cld' '300 K|350 K|330 K')
+    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'nom_top' 'cld_lvl' 'K')
+    levels_len=${#grepLevels[@]}
+    echo "len $levels_len"
+    totLines=0
+    totInv=`cat inventory | wc -l`
+    for(( i=0; i<$levels_len; i++ )); do
+        outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
+        cat inventory | egrep ${grepLevels[$i]} > tmpInv
+        invLen=`cat tmpInv | wc -l`
+        totLines=$(( invLen + totLines ))
+        if [[ $invLen -gt 0 ]]; then
+            echo $invLen
+            echo $totLines
+        fi
+        if [[ $invLen -ne 0 ]]; then
+            echo $outfile
+            cat tmpInv | wgrib2 -i $file  -append  -grib $outfile >/dev/null 2>&1
+        fi
+
+    done
+        if [[ $totLines -eq $totInv ]]; then
+            echo "i is $i"
+            break;
+        fi
+    echo $totLines
+    echo $totInv
+    if [[ $totLines -ne $totInv ]]; then
+        echo "off"
+        exit 1
+    fi
 }
 if [[ $# -lt 1 ]]; then # Check if there are enough arguments (need at least 1 file)
     usage
@@ -131,7 +152,7 @@ for file in $files; do
     elif [[ $isGrib == 'False' ]]; then
         wgrib=`which wgrib2`
         echo "Using wgrib2"
-        separateWgrib2Levels $file
+        separateWgrib2Levels $file $outdir
     else
         echo "ERROR: $file is not a grib file"
         echo "exiting"

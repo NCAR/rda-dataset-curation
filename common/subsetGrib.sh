@@ -39,46 +39,30 @@ separateWgribParams()
     IFS=$'\n' # Make separator \n
     file=$1
     outdir=$2
-    fileBasename=`basename $file | sed 's/_[0-9]*//g'`
+    fileBasename=`basename $file | sed 's/_[0-9]*//g' | sed 's/\.grb2//g' `
     echo "basename is $fileBasename"
     params=`wgrib $file | awk -F: '{print $4}' | sort -u` # Get all Params
     for param in $params; do
         echo "separating $param"
+
         outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
-        wgrib $file | grep $param | wgrib -i $file -grib -append -o $outfile >/dev/null
+        wgrib $file | grep $param | wgrib -i $file -append -grib -o $outfile >/dev/null
     done
 }
-separateWgribLevels()
+separateWgrib2Params()
 {
     IFS=$'\n' # Make separator \n
     file=$1
     outdir=$2
-    fileBasename=`basename $file`
-    levels=`wgrib $file | awk -F: '{print $12}' | sort -u`
-    echo "levels are"
-    echo $levels
-    # change outfile depending on the level--is a regex
-    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' )
-    levels_len=${#grepLevels[@]}
-    echo "len $levels_len"
-    for level in $levels; do
-        for(( i=0; i<$levels_len; i++ )); do
+    fileBasename=`basename $file | sed 's/_[0-9]*//g' | sed 's/\.grb2//g' `
+    echo "basename is $fileBasename"
+    params=`wgrib2 $file | awk -F: '{print $4}' | sort -u` # Get all Params
+    for param in $params; do
+        echo "separating $param"
 
-            echo "||${grepLevels[$i]}||"
-            echo "||$level||"
-            echo $level | grep "${grepLevels[$i]}"
-            rc=$?
-            if [[ $rc -eq 0 ]]; then
-                outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
-                wgrib $file | grep $level | wgrib -i $file -grib -append -o $outfile 2>/dev/null
-                break
-            fi
-        done
+        outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
+        wgrib2 $file | grep $param | wgrib2 -i $file -append -grib $outfile >/dev/null
     done
-}
-separateWgrib2()
-{
-    file=$1
 }
 if [[ $# -lt 1 ]]; then
     usage
@@ -125,16 +109,14 @@ for file in $files; do
         wgrib=`which wgrib`
         echo "Using wgrib"
         separateWgribParams $file $outdir
-        #separateWgribLevels $file $outdir
-
     elif [[ $isGrib == 'False' ]]; then
         wgrib=`which wgrib2`
         echo "Using wgrib2"
-        separateWgrib2 $file
+        separateWgrib2Params $file $outdir
     else
         echo "ERROR: $file is not a grib file"
         echo "exiting"
-        exit
+        exit 1
     fi
 
 
