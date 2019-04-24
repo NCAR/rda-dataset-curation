@@ -2,7 +2,7 @@
 
 ## Scripts
 
-- (Jump to)[Convert_yearly_gribs] `convert_yearly_gribs.sh` - Processes a years worth 20CRv3 files
+- [Jump to](#Convert_yearly_gribs) `convert_yearly_gribs.sh` - Processes a years worth 20CRv3 files
 - `runAll.sh` - 
 - `runYear.sh`
 - `slurm_job.tcsh`
