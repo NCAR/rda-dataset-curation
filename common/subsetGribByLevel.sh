@@ -28,21 +28,22 @@ separateWgribLevels()
     IFS=$'\n' # Make separator \n
     file=$1
     outdir=$2
-    fileBasename=`basename $file`
-    wgrib $file > inventory
-    levels=`cat inventory | awk -F: '{print $12}' | sort -u`
+    fileBasename=`basename $file`A
+    inventory="inventory$RANDOM"
+    wgrib $file > $inventory
+    levels=`cat $inventory | awk -F: '{print $12}' | sort -u`
     echo "levels are"
     echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb:" 'K$' 'MSL' 'atmos col' 'nom. top' 'cld|low cld|mid cld' '300K|350K|330K')
-    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'convect_cld' 'nom_top' 'cld_lvl' 'K')
+    grepLevels=("sfc"     "m above"  "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'      'MSL' 'atmos col' 'convect-cld'       'nom. top' 'cld|low cld|mid cld' '300K|350K|330K')
+    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma" "isotherm" "tropopause" "pres" 'K_level' 'msl' 'atmos-col' 'convect-cld-layer' 'nom_top'  'cld-lvl'             'K')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
-    totInv=`cat inventory | wc -l`
+    totInv=`cat $inventory | wc -l`
     for(( i=0; i<$levels_len; i++ )); do
         outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
-        cat inventory | egrep ${grepLevels[$i]} > tmpInv
+        cat $inventory | egrep ${grepLevels[$i]} > tmpInv
         invLen=`cat tmpInv | wc -l`
         totLines=$(( invLen + totLines ))
         if [[ $invLen -gt 0 ]]; then
@@ -56,6 +57,7 @@ separateWgribLevels()
     done
         if [[ $totLines -eq $totInv ]]; then
             echo "i is $i"
+            rm $inventory
             break;
         fi
     echo $totLines
@@ -71,20 +73,21 @@ separateWgrib2Levels()
     file=$1
     outdir=$2
     fileBasename=`basename $file`
-    wgrib2 $file > inventory
-    levels=`cat inventory | awk -F: '{print $5}' | sort -u`
+    inventory="inventory$RANDOM"
+    wgrib2 $file > $inventory
+    levels=`cat $inventory | awk -F: '{print $5}' | sort -u`
     echo "levels are"
     echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=("surface" "m above" "m below" "sigma" "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'cloud|cld|low cld|mid cld' '300 K|350 K|330 K')
-    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'nom_top' 'cld_lvl' 'K')
+    grepLevels=("surface" "m above" "m below" "sigma" "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'boundary layer|low cloud|middle cloud|high cloud' 'convective cloud' '300 K|350 K|330 K')
+    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'nom_top' 'cld_lvl' 'convective_cld_lvl' 'K')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
-    totInv=`cat inventory | wc -l`
+    totInv=`cat $inventory | wc -l`
     for(( i=0; i<$levels_len; i++ )); do
         outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
-        cat inventory | egrep ${grepLevels[$i]} > tmpInv
+        cat $inventory | egrep ${grepLevels[$i]} > tmpInv
         invLen=`cat tmpInv | wc -l`
         totLines=$(( invLen + totLines ))
         if [[ $invLen -gt 0 ]]; then
@@ -99,6 +102,7 @@ separateWgrib2Levels()
     done
         if [[ $totLines -eq $totInv ]]; then
             echo "i is $i"
+            rm $inventory
             break;
         fi
     echo $totLines
@@ -107,6 +111,7 @@ separateWgrib2Levels()
         echo "off"
         exit 1
     fi
+    rm $inventory
 }
 if [[ $# -lt 1 ]]; then # Check if there are enough arguments (need at least 1 file)
     usage
@@ -156,7 +161,7 @@ for file in $files; do
     else
         echo "ERROR: $file is not a grib file"
         echo "exiting"
-        exit
+        exit 1
     fi
 done
 
