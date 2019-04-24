@@ -2,12 +2,12 @@
 
 ## Scripts
 
-- [Jump to](#Convert_yearly_gribs) `convert_yearly_gribs.sh` - Processes a years worth 20CRv3 files
-- `runAll.sh` - 
-- `runYear.sh`
-- `slurm_job.tcsh`
+- [Jump to](#convert_yearly_gribs) `convert_yearly_gribs.sh` - Processes a years worth 20CRv3 files
+- [Jump to](#runAll) `runAll.sh` - 
+- [Jump to](#runYear) `runYear.sh`
+- [Jump to](#slurm_job) `slurm_job.tcsh`
 
-## Convert_yearly_gribs
+## convert_yearly_gribs
 
 This program will attempt to process a given directory. Typically, a year's worth of files.
 
@@ -34,5 +34,16 @@ Another assumption is that the directory stucture is as follows
     psobfile             
     psobs.txt
 ```
-Where 
------
+---
+
+## runAll
+
+### Usage
+
+## runYear
+
+### Usage
+
+## slurm_job
+
+### Usage
