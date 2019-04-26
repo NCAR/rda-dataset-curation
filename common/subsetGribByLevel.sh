@@ -28,7 +28,7 @@ separateWgribLevels()
     IFS=$'\n' # Make separator \n
     file=$1
     outdir=$2
-    fileBasename=`basename $file`A
+    fileBasename=`basename $file`
     inventory="inventory$RANDOM"
     wgrib $file > $inventory
     levels=`cat $inventory | awk -F: '{print $12}' | sort -u`

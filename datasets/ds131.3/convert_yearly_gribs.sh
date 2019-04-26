@@ -70,12 +70,13 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
     for anlFile in $anlDir/*sprdanl*; do
         filename=`echo $anlFile | sed "s/pgrbenssprdanl/anl_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
+        >&2 echo "converting $filename to netcdf"
         cfgrib to_netcdf $anlFile -o $filename
         if [[ $? -ne 0 ]]; then
             >&2 echo "cfgrib failed on $anlFile"
             exit 1;
         fi
-        rm $anlFile
+        #rm $anlFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
@@ -83,7 +84,7 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         echo "Size after:"
         du -m $filename
     done
-    #rm $anlFile/*idx
+    rm $anlFile/*spread*.idx
 fi
 if [[ -z $file_type || $file_type == 'mean' ]]; then
     # Mean Analysis - finds all files and subset's by param
@@ -113,12 +114,13 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     for anlFile in $anlDir/*meananl*; do
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
+        >&2 echo "converting $filename to netcdf"
         cfgrib to_netcdf $anlFile -o $filename
         if [[ $? -ne 0 ]]; then
             >&2 echo "cfgrib failed on $anlFile"
             exit 1;
         fi
-        rm $anlFile
+        #rm $anlFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
@@ -126,7 +128,7 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo "Size after:"
         du -m $filename
     done
-    #rm $anlFile/*idx
+    rm $anlFile/*mean*.idx
 fi
 if [[ -z $file_type || $file_type == 'fg' ]]; then
     exit 1

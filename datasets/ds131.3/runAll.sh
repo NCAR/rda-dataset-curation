@@ -29,13 +29,12 @@ fi
 
 echo "from: $from"
 echo "to: $to"
-
 for file in $filelist; do
     bn=`basename $file`
     if [[ $bn -ge $from && $bn -le $to ]]; then
         echo "Executing $bn"
-        sbatch slurm_job.tcsh $file 'mean'
-        sbatch slurm_job.tcsh $file 'spread'
-        sbatch slurm_job.tcsh $file 'fg'
+        sbatch -o logs/${bn}_mean.out -e logs/${bn}_mean.err slurm_job.tcsh $file 'mean'
+        sbatch -o logs/${bn}_spread.out -e logs/${bn}_spread.err slurm_job.tcsh $file 'spread'
+        sbatch -o logs/${bn}_fg.out -e logs/${bn}_fg.err slurm_job.tcsh $file 'fg'
     fi
 done
