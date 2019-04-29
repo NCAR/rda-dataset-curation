@@ -70,7 +70,7 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
     for anlFile in $anlDir/*sprdanl*; do
         filename=`echo $anlFile | sed "s/pgrbenssprdanl/anl_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
-        >&2 echo "converting $filename to netcdf"
+        >&2 echo "converting $anlFile to netcdf"
         cfgrib to_netcdf $anlFile -o $filename
         if [[ $? -ne 0 ]]; then
             >&2 echo "cfgrib failed on $anlFile"
@@ -114,7 +114,7 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     for anlFile in $anlDir/*meananl*; do
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
-        >&2 echo "converting $filename to netcdf"
+        >&2 echo "converting $anlFile to netcdf"
         cfgrib to_netcdf $anlFile -o $filename
         if [[ $? -ne 0 ]]; then
             >&2 echo "cfgrib failed on $anlFile"
@@ -131,11 +131,9 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     rm $anlFile/*mean*.idx
 fi
 if [[ -z $file_type || $file_type == 'fg' ]]; then
-    exit 1
     # First guess spread - finds all first guess files and subsets by param
     for fgFile in `find $in_dir | grep 'sprdfg' | sort`; do
         echo "Starting fg processing"
-        exit 0
         $subsetParamExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -158,8 +156,9 @@ if [[ -z $file_type || $file_type == 'fg' ]]; then
     for fgFile in $fgDir/*; do
         filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
+        >&2 echo "converting $fgFile to netcdf"
         cfgrib to_netcdf $fgFile -o $filename
-        rm $fgFile
+        #rm $fgFile
         nccopy -d 6 $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename

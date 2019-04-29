@@ -35,7 +35,7 @@ separateWgribLevels()
     echo "levels are"
     echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=("sfc"     "m above"  "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'      'MSL' 'atmos col' 'convect-cld'       'nom. top' 'cld|low cld|mid cld' '300K|350K|330K')
+    grepLevels=("sfc"     "m above"  "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'      'MSL' 'atmos col' 'convect-cld'       'nom. top' 'bndary-layer|high cld|low cld|mid cld' '300K|350K|330K')
     grepLevelsName=("sfc" "height_m" "depth_cm" "sigma" "isotherm" "tropopause" "pres" 'K_level' 'msl' 'atmos-col' 'convect-cld-layer' 'nom_top'  'cld-lvl'             'K')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"

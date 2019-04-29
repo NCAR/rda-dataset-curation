@@ -3,9 +3,9 @@
 ## Scripts
 
 - [Jump to](#convert_yearly_gribs) `convert_yearly_gribs.sh` - Processes a years worth 20CRv3 files
-- [Jump to](#runAll) `runAll.sh` - 
-- [Jump to](#runYear) `runYear.sh`
-- [Jump to](#slurm_job) `slurm_job.tcsh`
+- [Jump to](#runAll) `runAll.sh` - Initiates runs. Can specify range of years.
+- [Jump to](#runYear) `runYear.sh` - Runs one year and given run type (fg, mean, spread)
+- [Jump to](#slurm_job) `slurm_job.tcsh` - batch script to run on slurm.
 
 ## convert_yearly_gribs
 
@@ -38,7 +38,17 @@ Another assumption is that the directory stucture is as follows
 
 ## runAll
 
+This program will run multiple years of 20CRv3. This is the highest level program.
+
 ### Usage
+```
+./runAll.sh [start year] [end year]
+```
+
+### Example
+```
+./runAll.sh 1888 1903
+```
 
 ## runYear
 
