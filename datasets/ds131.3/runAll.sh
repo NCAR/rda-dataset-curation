@@ -33,8 +33,8 @@ for file in $filelist; do
     bn=`basename $file`
     if [[ $bn -ge $from && $bn -le $to ]]; then
         echo "Executing $bn"
-        sbatch -o logs/${bn}_mean.out -e logs/${bn}_mean.err slurm_job.tcsh $file 'mean'
-        sbatch -o logs/${bn}_spread.out -e logs/${bn}_spread.err slurm_job.tcsh $file 'spread'
-        sbatch -o logs/${bn}_fg.out -e logs/${bn}_fg.err slurm_job.tcsh $file 'fg'
+        sbatch -J ${bn} -o logs/${bn}_mean.out -e logs/${bn}_mean.err slurm_job.tcsh $file 'mean'
+        sbatch -J ${bn} -o logs/${bn}_spread.out -e logs/${bn}_spread.err slurm_job.tcsh $file 'spread'
+        sbatch -J ${bn} -o logs/${bn}_fg.out -e logs/${bn}_fg.err slurm_job.tcsh $file 'fg'
     fi
 done

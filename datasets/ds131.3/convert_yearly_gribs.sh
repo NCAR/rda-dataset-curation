@@ -150,7 +150,6 @@ if [[ -z $file_type || $file_type == 'fg' ]]; then
             exit 1
         fi
     done
-    exit 1
     rm $fgDir/*All_Levels*
 
     for fgFile in $fgDir/*; do
