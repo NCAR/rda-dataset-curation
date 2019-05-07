@@ -36,5 +36,6 @@ for file in $filelist; do
         sbatch -J ${bn} -o logs/${bn}_mean.out -e logs/${bn}_mean.err slurm_job.tcsh $file 'mean'
         sbatch -J ${bn} -o logs/${bn}_spread.out -e logs/${bn}_spread.err slurm_job.tcsh $file 'spread'
         sbatch -J ${bn} -o logs/${bn}_fg.out -e logs/${bn}_fg.err slurm_job.tcsh $file 'fg'
+        sbatch -J ${bn} -o logs/${bn}_obs.out -e logs/${bn}_obs.err slurm_job.tcsh $file 'obs'
     fi
 done

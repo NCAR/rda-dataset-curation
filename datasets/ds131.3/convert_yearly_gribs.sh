@@ -11,7 +11,14 @@ convert_cfgrib()
 {
     infile=$1
     outfile=$2
-    cfgrib to_netcdf $infile -o $outfile
+    # First convert to grib2
+    $isGrib1 $infile
+    if [[ $? -eq 0 ]]; then # if is grib 1
+        cnvgrib -g12 -nv $infile ${infile}.grb2
+        cfgrib to_netcdf ${infile}.grb2 -o $outfile
+    else
+        cfgrib to_netcdf ${infile} -o $outfile
+    fi
     if [[ $? -ne 0 ]]; then
         >&2 echo "cfgrib failed on $infile"
         exit 1;
@@ -23,7 +30,7 @@ convert_ncl()
     outfile=$2
     ncl_outfile=`echo $infile | sed 's/\.grb.*$//'`
     ncl_outfile="${ncl_outfile}.nc"
-    ncl_convert2nc -nc4 $infile
+    ncl_convert2nc $infile
     mv $ncl_outfile $outfile
 }
 
@@ -34,7 +41,7 @@ fi
 in_dir=$1 # Assumed to be directory that contains a timestep for every directory
 out_dir=$2
 file_type=$3 # 'spread', 'mean', or 'fg'
-if [[ ! -z $file_type && $file_type != "spread" && $file_type != "mean" && $file_type != "fg" ]]
+if [[ ! -z $file_type && $file_type != "spread" && $file_type != "mean" && $file_type != "fg" && $file_type != "obs" ]]
 then
     >&2 echo "file_type not correct. Can be 'spread', 'mean', or 'fg'"
     >&2 echo "no file_type will do all."
@@ -63,6 +70,7 @@ mkdir $fgDir
 common_dir="../../common/"
 subsetParamExe="$common_dir/subsetGrib.sh"
 subsetLevelExe="$common_dir/subsetGribByLevel.sh"
+isGrib1="$common_dir/isGrib1.py"
 
 if [[ -z $file_type || $file_type == 'spread' ]]; then
     echo "Starting spread processing"
@@ -90,8 +98,8 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         filename=`echo $anlFile | sed "s/pgrbenssprdanl/anl_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
-        convert_ncl $anlFile $filename
-        #convert_cfgrib $anlFile $filename
+        #convert_ncl $anlFile $filename
+        convert_cfgrib $anlFile $filename
         #rm $anlFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -131,8 +139,8 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
-        convert_ncl $anlFile $filename
-        #convert_cfgrib $anlFile $filename
+        #convert_ncl $anlFile $filename
+        convert_cfgrib $anlFile $filename
         #rm $anlFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -169,10 +177,10 @@ if [[ -z $file_type || $file_type == 'fg' ]]; then
         filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
-        convert_ncl $fgFile $filename
-        #convert_cfgrib $fgFile $filename
+        #convert_ncl $fgFile $filename
+        convert_cfgrib $fgFile $filename
         #rm $fgFile
-        nccopy -d 6 $filename ${filename}.compressed
+        nccopy -d 6 -k nc4 $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
         mv ${filename}.compressed $filename
@@ -180,31 +188,12 @@ if [[ -z $file_type || $file_type == 'fg' ]]; then
         du -m $filename
     done
 fi
-## Get temp file for example output
-#exple_dir=`ls -1 $in_dir | head -1 `
-#for i in $in_dir/$exple_dir/*anl*.grb2; do
-#    wgrib2 $i | awk -F : '{print($4);}' | sort -u >> tmp_grb2_param_inv_anl
-#    wgrib2 $i | awk -F : '{print($5);}' | sed 's/[0-9]//g' | sed 's/\.//g' | sort -u >> tmp_grb2_level_inv_anl
-#done
-#
-## Start processing
-#for dir in $in_dir/*; do
-#    dir_basename=`basename $dir`
-#    echo "Processing $dir_basename"
-#
-#    # Analysis spread and mean
-#    cat $dir/*sprdanl* >> $working_dir/anl/${year}sprd.grb1
-#    cat $dir/*meananl* >> $working_dir/anl/${year}mean.grb2
-#
-#    # First Guess
-#    cat $dir/*fg* >> $working_dir/fg/${year}mean.grb2
-#
-#    # Obs
-#    obs_dir=$working_dir/obs/$dir_basename
-#    mkdir $obs_dir 2>/dev/null
-#    cp $dir/*obs* $obs_dir
-#done
-#
-#tar -cvzf $working_dir/obs_$year.tgz $working_dir/obs
-#
-#
+if [[ -z $file_type || $file_type == 'obs' ]]; then
+    for obsFile in `find $in_dir -type f | grep 'psob' | sort`; do
+        filename=${year}`echo $obsFile | grep -o '..........\/psob.*$' | sed 's/\//-/g'`
+        cp $obsFile $obsDir/$filename
+    done
+
+    cd $obsDir; tar -cvzf psobs_$year.tgz *; cd -
+    rm $obsDir/${year}*
+fi
