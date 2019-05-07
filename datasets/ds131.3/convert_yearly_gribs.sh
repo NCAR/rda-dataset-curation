@@ -7,7 +7,25 @@ usage()
     echo "in_dir"
     exit 1
 }
-
+convert_cfgrib()
+{
+    infile=$1
+    outfile=$2
+    cfgrib to_netcdf $infile -o $outfile
+    if [[ $? -ne 0 ]]; then
+        >&2 echo "cfgrib failed on $infile"
+        exit 1;
+    fi
+}
+convert_ncl()
+{
+    infile=$1
+    outfile=$2
+    ncl_outfile=`echo $infile | sed 's/\.grb.*$//'`
+    ncl_outfile="${ncl_outfile}.nc"
+    ncl_convert2nc -nc4 $infile
+    mv $ncl_outfile $outfile
+}
 
 if [[ -z $1 || -z $2 ]]; then
     usage
@@ -23,6 +41,7 @@ then
     exit 1
 fi
 module load grib-bins
+module load ncl
 ####################
 ## Initialization ##
 ####################
@@ -71,11 +90,8 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         filename=`echo $anlFile | sed "s/pgrbenssprdanl/anl_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
-        cfgrib to_netcdf $anlFile -o $filename
-        if [[ $? -ne 0 ]]; then
-            >&2 echo "cfgrib failed on $anlFile"
-            exit 1;
-        fi
+        convert_ncl $anlFile $filename
+        #convert_cfgrib $anlFile $filename
         #rm $anlFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -115,11 +131,8 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
-        cfgrib to_netcdf $anlFile -o $filename
-        if [[ $? -ne 0 ]]; then
-            >&2 echo "cfgrib failed on $anlFile"
-            exit 1;
-        fi
+        convert_ncl $anlFile $filename
+        #convert_cfgrib $anlFile $filename
         #rm $anlFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -156,7 +169,8 @@ if [[ -z $file_type || $file_type == 'fg' ]]; then
         filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
-        cfgrib to_netcdf $fgFile -o $filename
+        convert_ncl $fgFile $filename
+        #convert_cfgrib $fgFile $filename
         #rm $fgFile
         nccopy -d 6 $filename ${filename}.compressed
         echo "Size before:"
