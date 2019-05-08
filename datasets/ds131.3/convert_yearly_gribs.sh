@@ -108,7 +108,7 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         echo "Size after:"
         du -m $filename
     done
-    rm $anlFile/*spread*.idx
+    rm $anlDir/*sprd*.idx
 fi
 if [[ -z $file_type || $file_type == 'mean' ]]; then
     # Mean Analysis - finds all files and subset's by param
@@ -149,7 +149,7 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo "Size after:"
         du -m $filename
     done
-    rm $anlFile/*mean*.idx
+    rm $anlDir/*mean*.idx
 fi
 if [[ -z $file_type || $file_type == 'fg' ]]; then
     # First guess spread - finds all first guess files and subsets by param

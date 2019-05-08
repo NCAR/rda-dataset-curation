@@ -12,4 +12,4 @@ fi
 outDir="/gpfs/fs1/scratch/rpconroy/rda-dataset-curation/datasets/ds131.3"
 file_type=$2
 
-./convert_yearly_gribs.sh $inDir $outDir $file_type
+time ./convert_yearly_gribs.sh $inDir $outDir $file_type
