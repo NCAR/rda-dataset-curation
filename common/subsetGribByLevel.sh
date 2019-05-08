@@ -29,61 +29,90 @@ separateWgribLevels()
     file=$1
     outdir=$2
     fileBasename=`basename $file`
-    wgrib $file > inventory
-    levels=`cat inventory | awk -F: '{print $12}' | sort -u`
+    inventory="inventory$RANDOM"
+    wgrib $file > $inventory
+    levels=`cat $inventory | awk -F: '{print $12}' | sort -u`
     echo "levels are"
-    echo "$levels\n"
+    echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=("sfc" "m above" "cm down" "sigma" "isotherm" "tropopause" "mb" 'K$' 'MSL' 'atmos col' 'convect-cld' 'top' 'high cld bot' )
-    grepLevelsName=("sfc" "height_m" "depth_cm" "sigma-level" "isotherm" "tropopause" "mb" 'K_level' 'MSL' 'atmos_col' 'convect_cld' 'top' 'high_cld_bot' )
+    grepLevels=("sfc" "10 m above"    "1*2 m above|[2-9]0 m above|[1-9]00 m above" "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'      'MSL' 'atmos col' 'convect-cld'       'nom. top' 'bndary-layer' 'high cld' 'low cld' 'mid cld' '300K|350K|330K')
+    grepLevelsName=("sfc" "10m" "height" "depth_cm" "sigma" "isotherm" "tropopause" "pres" 'K_level' 'msl' 'atmos-col' 'convect-cld-layer' 'nom_top'  'boundary_layer' 'high_cld' 'low_cld' 'mid_cld' 'K')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
-    totInv=`cat inventory | wc -l`
+    totInv=`cat $inventory | wc -l`
     for(( i=0; i<$levels_len; i++ )); do
         outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
-        cat inventory | grep ${grepLevels[$i]} > tmpInv
+        cat $inventory | egrep ${grepLevels[$i]} > tmpInv
         invLen=`cat tmpInv | wc -l`
         totLines=$(( invLen + totLines ))
-        echo $invLen
-        echo $totLines
-        if [[ $invLen -ne 0 ]]; then
-            cat tmpInv | wgrib -i $file -grib -append -o $outfile #>/dev/null 2>&1
+        if [[ $invLen -gt 0 ]]; then
+            echo $invLen
+            echo $totLines
         fi
-        if [[ $totLines -eq $totInv ]]; then
-            echo "i is $i"
-            break;
+        if [[ $invLen -ne 0 ]]; then
+            cat tmpInv | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
         fi
 
     done
+        if [[ $totLines -eq $totInv ]]; then
+            echo "i is $i"
+            rm $inventory
+            break;
+        fi
     echo $totLines
     echo $totInv
     if [[ $totLines -ne $totInv ]]; then
         echo "off"
-        #exit 1
+        exit 1
     fi
-    #for level in $levels; do
-    #    for(( i=0; i<$levels_len; i++ )); do
-
-    #        echo "||${grepLevels[$i]}||"
-    #        echo "||$level||"
-    #        echo $level | grep "${grepLevels[$i]}" > /dev/null 2>&1
-    #        rc=$?
-    #        if [[ $rc -eq 0 ]]; then
-    #            outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevels[$i]}/"`
-    #            cat inventory | grep $level | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
-    #            break
-    #        fi
-    #    done
-    #    if [[ $i -eq $levels_len ]]; then
-    #        echo "Can't find level: $level"
-    #        exit 1
-    #    fi
-    #done
 }
 separateWgrib2Levels()
 {
+    IFS=$'\n' # Make separator \n
     file=$1
+    outdir=$2
+    fileBasename=`basename $file`
+    inventory="inventory$RANDOM"
+    wgrib2 $file > $inventory
+    levels=`cat $inventory | awk -F: '{print $5}' | sort -u`
+    echo "levels are"
+    echo "$levels"
+    # change outfile depending on the level--is a regex
+    grepLevels=(    "surface" '10 m above' "1*2 m above|[2-9]0 m above|[1-9]00 m above"  "m below"  "sigma"       "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'boundary layer' 'low cloud' 'middle cloud' 'high cloud' 'convective cloud' '300 K|350 K|330 K')
+    grepLevelsName=("sfc"     '10 m' "height"     "depth_cm"     "sigma-level" "isotherm" "tropopause" "mb"  'K'  'MSL' 'atmos_col'         'nom_top'           'boundary_layer' 'low_cld'   'middle_cld'   'high_cld'   'convective_cld' 'K')
+    levels_len=${#grepLevels[@]}
+    echo "len $levels_len"
+    totLines=0
+    totInv=`cat $inventory | wc -l`
+    for(( i=0; i<$levels_len; i++ )); do
+        outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
+        cat $inventory | egrep ${grepLevels[$i]} > tmpInv
+        invLen=`cat tmpInv | wc -l`
+        totLines=$(( invLen + totLines ))
+        if [[ $invLen -gt 0 ]]; then
+            echo $outfile
+            echo $invLen
+            echo $totLines
+        fi
+        if [[ $invLen -ne 0 ]]; then
+            echo $outfile
+            cat tmpInv | wgrib2 -i $file  -append  -grib $outfile >/dev/null 2>&1
+        fi
+
+    done
+        if [[ $totLines -eq $totInv ]]; then
+            echo "i is $i"
+            rm $inventory
+            break;
+        fi
+    echo $totLines
+    echo $totInv
+    if [[ $totLines -ne $totInv ]]; then
+        echo "off"
+        exit 1
+    fi
+    rm $inventory
 }
 if [[ $# -lt 1 ]]; then # Check if there are enough arguments (need at least 1 file)
     usage
@@ -129,11 +158,11 @@ for file in $files; do
     elif [[ $isGrib == 'False' ]]; then
         wgrib=`which wgrib2`
         echo "Using wgrib2"
-        separateWgrib2Levels $file
+        separateWgrib2Levels $file $outdir
     else
         echo "ERROR: $file is not a grib file"
         echo "exiting"
-        exit
+        exit 1
     fi
 done
 
