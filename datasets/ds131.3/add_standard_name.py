@@ -24,7 +24,7 @@ def add_standard_name(filename, std_names):
     and attempts to replace them from std_names dict.
     Uses existing long_name as key.
     """
-    nc = Dataset(filename)
+    nc = Dataset(filename, 'a')
     for var_str in nc.variables:
         var = nc.variables[var_str]
         if 'standard_name' not in var and 'long_name' in var and 'long_name' in std_names:
