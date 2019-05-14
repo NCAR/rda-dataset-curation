@@ -12,8 +12,10 @@ def add_DOI(filename, doi):
     and attempts to replace them from std_names dict.
     Uses existing long_name as key.
     """
+    doi_attr_name = 'DOI'
     nc = Dataset(filename, 'a')
-    nc.setncattr('DOI', doi)
+    nc.setncattr(doi_attr_name, doi)
+    nc.close()
 
 if len(sys.argv) <= 2:
     usage()

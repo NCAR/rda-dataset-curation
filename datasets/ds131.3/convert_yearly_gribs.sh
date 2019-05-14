@@ -15,6 +15,11 @@ convert_cfgrib()
     $isGrib1 $infile
     if [[ $? -eq 0 ]]; then # if is grib 1
         cnvgrib -g12 -nv $infile ${infile}.grb2
+        grb1msgs=`wgrib $infile | wc -l`
+        grb2msgs=`wgrib2 ${infile}.grb2 | wc -l`
+        if [[ grb1msgs != grb2msgs ]]; then
+            >&2 echo "number of messages are different after grb1->grb2 $grb1msgs vs $grb2msgs"
+        fi
         cfgrib to_netcdf ${infile}.grb2 -o $outfile
     else
         cfgrib to_netcdf ${infile} -o $outfile
@@ -135,7 +140,11 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     done
     echo "Completed subsetParamByLevel"
     rm $anlDir/*meananl*All_Levels*
+    numFiles=`ls -1 $anlDir/*meananl* | wc -l`
+    counter=0
     for anlFile in $anlDir/*meananl*; do
+        counter=$(( $counter + 1 ))
+        echo "file $counter/$numFiles"
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
