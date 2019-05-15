@@ -22,8 +22,8 @@ convert_g1_to_g2()
         wgrib $infile | tail -$bothalf | wgrib -i $infile -grib -o ${infile}.2
         cnvgrib -g12 -nv ${infile}.1 ${infile}.1.grb2
         cnvgrib -g12 -nv ${infile}.2 ${infile}.2.grb2
-        mv ${infile}.1.grb2 ${infile}.1.grb2
-        cat ${infile}.2.grb2 >> ${infile}.1.grb2
+        mv ${infile}.1.grb2 ${infile}.grb2
+        cat ${infile}.2.grb2 >> ${infile}.grb2
     fi
 }
 convert_cfgrib()
@@ -80,10 +80,12 @@ mkdir $working_dir 2>/dev/null
 anlDir="$working_dir/anl"
 obsDir="$working_dir/obs"
 fgDir="$working_dir/fg"
+sflxDir="$working_dir/sflx"
 
 mkdir $anlDir
 mkdir $obsDir
 mkdir $fgDir
+mkdir $sflxDir
 
 # Assingments
 common_dir="../../common/"
@@ -126,6 +128,7 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
+        $common_dir/add_var_attr.py $filename 'cell_methods' 'area: standard_deviation'
     done
     rm $anlDir/*sprd*.idx
 fi
@@ -209,6 +212,7 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
+        $common_dir/add_var_attr.py $filename 'cell_methods' 'area: standard_deviation'
     done
 fi
 if [[ -z $file_type || $file_type == 'meanfg' ]]; then
