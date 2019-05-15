@@ -37,7 +37,9 @@ for file in $filelist; do
         sleep 5
         sbatch -J "${bn}_sprd" -o logs/${bn}_spread.out -e logs/${bn}_spread.err slurm_job.tcsh $file 'spread'
         sleep 5
-        sbatch -J "${bn}_fg" -o logs/${bn}_fg.out -e logs/${bn}_fg.err slurm_job.tcsh $file 'fg'
+        sbatch -J "${bn}_mean_fg" -o logs/${bn}_mean_fg.out -e logs/${bn}_mean_fg.err slurm_job.tcsh $file 'meanfg'
+        sleep 5
+        sbatch -J "${bn}_spread_fg" -o logs/${bn}_spread_fg.out -e logs/${bn}_spread_fg.err slurm_job.tcsh $file 'sprdfg'
         sleep 5
         sbatch -J "${bn}_obs" -o logs/${bn}_obs.out -e logs/${bn}_obs.err slurm_job.tcsh $file 'obs'
     fi
