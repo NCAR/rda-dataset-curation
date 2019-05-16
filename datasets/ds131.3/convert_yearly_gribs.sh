@@ -9,12 +9,13 @@ usage()
 }
 convert_g1_to_g2()
 {
+    echo "Done converting grib1 to grib2"
     infile=$1
     outfile=$2
-    cnvgrib -g12 -nv $infile ${infile}.grb2
+    cnvgrib -g12 -nv $infile $outfile
     grb1msgs=`wgrib $infile | wc -l`
     grb2msgs=`wgrib2 ${infile}.grb2 | wc -l`
-    if [[ grb1msgs != grb2msgs ]]; then #cnvgrib bug (I think) need to reduce size of original
+    if [[ grb1msgs -ne grb2msgs ]]; then #cnvgrib bug (I think) need to reduce size of original
         >&2 echo "number of messages are different after grb1->grb2 $grb1msgs vs $grb2msgs"
         tophalf=$(( $grb1msgs / 2 ))
         bothalf=$(( $grb1msgs - $tophalf ))
@@ -22,9 +23,10 @@ convert_g1_to_g2()
         wgrib $infile | tail -$bothalf | wgrib -i $infile -grib -o ${infile}.2
         cnvgrib -g12 -nv ${infile}.1 ${infile}.1.grb2
         cnvgrib -g12 -nv ${infile}.2 ${infile}.2.grb2
-        mv ${infile}.1.grb2 ${infile}.grb2
-        cat ${infile}.2.grb2 >> ${infile}.grb2
+        mv ${infile}.1.grb2 $outfile
+        cat ${infile}.2.grb2 >> $outfile
     fi
+    echo "Done converting grib1 to grib2"
 }
 convert_cfgrib()
 {
@@ -33,9 +35,11 @@ convert_cfgrib()
     # First convert to grib2
     $isGrib1 $infile
     if [[ $? -eq 0 ]]; then # if is grib 1
-        convert_g1_to_g2 $infile ${infile}.grb2
-        cfgrib to_netcdf ${infile}.grb2 -o $outfile
+        convert_g1_to_g2 $infile "${infile}.grb2"
+        echo "cfgrib to_netcdf ${infile}.grb2 -o $outfile"
+        cfgrib to_netcdf "${infile}.grb2" -o $outfile
     else
+        echo "cfgrib to_netcdf ${infile} -o $outfile"
         cfgrib to_netcdf ${infile} -o $outfile
     fi
     if [[ $? -ne 0 ]]; then
@@ -62,7 +66,7 @@ out_dir=$2
 file_type=$3 # 'spread', 'mean', 'sprdfg', or 'meanfg'
 if [[ ! -z $file_type && $file_type != "spread" && $file_type != "mean" && $file_type != "meanfg" && $file_type != "sprdfg" && $file_type != "obs" ]]
 then
-    >&2 echo "file_type not correct. Can be 'spread', 'mean', or 'fg'"
+    >&2 echo "file_type not correct. Can be 'spread', 'mean', 'obs', 'meanfg' or 'sprdfg'"
     >&2 echo "no file_type will do all."
     exit 1
 fi
@@ -175,7 +179,7 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo "Size after:"
         du -m $filename
     done
-    rm $anlDir/*mean*.idx
+    rm $anlDir/*meananl*.idx
 fi
 if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
     # First guess spread - finds all first guess files and subsets by param
@@ -238,7 +242,7 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
     rm $fgDir/*All_Levels*
 
     for fgFile in $fgDir/*meanfg*; do
-        filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_mean_$year/" | sed 's/grb/nc/'`
+        filename=`echo $fgFile | sed "s/pgrbensmeanfg/fg_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
