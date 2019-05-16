@@ -46,13 +46,27 @@ This program will run multiple years of 20CRv3. This is the highest level progra
 ```
 
 ### Example
+This will queue jobs from 1888 to 1903. The number of jobs would be (1903 - 1888) * 4.
 ```
 ./runAll.sh 1888 1903
 ```
 
 ## runYear
 
+This program executes a job for one year.
+
 ### Usage
+
+```
+./runYear [/path/to/CR20/files/<year>] [file type]
+```
+
+### Example
+
+
+```
+./runYear /scratch/CR20v3/1999/ mean
+```
 
 ## slurm_job
 

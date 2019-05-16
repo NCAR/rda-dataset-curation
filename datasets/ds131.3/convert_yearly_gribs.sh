@@ -7,6 +7,27 @@ usage()
     echo "in_dir"
     exit 1
 }
+convert_g1_to_g2()
+{
+    echo "Done converting grib1 to grib2"
+    infile=$1
+    outfile=$2
+    cnvgrib -g12 -nv $infile $outfile
+    grb1msgs=`wgrib $infile | wc -l`
+    grb2msgs=`wgrib2 ${infile}.grb2 | wc -l`
+    if [[ grb1msgs -ne grb2msgs ]]; then #cnvgrib bug (I think) need to reduce size of original
+        >&2 echo "number of messages are different after grb1->grb2 $grb1msgs vs $grb2msgs"
+        tophalf=$(( $grb1msgs / 2 ))
+        bothalf=$(( $grb1msgs - $tophalf ))
+        wgrib $infile | head -$tophalf | wgrib -i $infile -grib -o ${infile}.1
+        wgrib $infile | tail -$bothalf | wgrib -i $infile -grib -o ${infile}.2
+        cnvgrib -g12 -nv ${infile}.1 ${infile}.1.grb2
+        cnvgrib -g12 -nv ${infile}.2 ${infile}.2.grb2
+        mv ${infile}.1.grb2 $outfile
+        cat ${infile}.2.grb2 >> $outfile
+    fi
+    echo "Done converting grib1 to grib2"
+}
 convert_cfgrib()
 {
     infile=$1
@@ -14,9 +35,11 @@ convert_cfgrib()
     # First convert to grib2
     $isGrib1 $infile
     if [[ $? -eq 0 ]]; then # if is grib 1
-        cnvgrib -g12 -nv $infile ${infile}.grb2
-        cfgrib to_netcdf ${infile}.grb2 -o $outfile
+        convert_g1_to_g2 $infile "${infile}.grb2"
+        echo "cfgrib to_netcdf ${infile}.grb2 -o $outfile"
+        cfgrib to_netcdf "${infile}.grb2" -o $outfile
     else
+        echo "cfgrib to_netcdf ${infile} -o $outfile"
         cfgrib to_netcdf ${infile} -o $outfile
     fi
     if [[ $? -ne 0 ]]; then
@@ -40,10 +63,10 @@ fi
 
 in_dir=$1 # Assumed to be directory that contains a timestep for every directory
 out_dir=$2
-file_type=$3 # 'spread', 'mean', or 'fg'
-if [[ ! -z $file_type && $file_type != "spread" && $file_type != "mean" && $file_type != "fg" && $file_type != "obs" ]]
+file_type=$3 # 'spread', 'mean', 'sprdfg', or 'meanfg'
+if [[ ! -z $file_type && $file_type != "spread" && $file_type != "mean" && $file_type != "meanfg" && $file_type != "sprdfg" && $file_type != "obs" ]]
 then
-    >&2 echo "file_type not correct. Can be 'spread', 'mean', or 'fg'"
+    >&2 echo "file_type not correct. Can be 'spread', 'mean', 'obs', 'meanfg' or 'sprdfg'"
     >&2 echo "no file_type will do all."
     exit 1
 fi
@@ -61,10 +84,12 @@ mkdir $working_dir 2>/dev/null
 anlDir="$working_dir/anl"
 obsDir="$working_dir/obs"
 fgDir="$working_dir/fg"
+sflxDir="$working_dir/sflx"
 
 mkdir $anlDir
 mkdir $obsDir
 mkdir $fgDir
+mkdir $sflxDir
 
 # Assingments
 common_dir="../../common/"
@@ -107,6 +132,7 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
+        $common_dir/add_var_attr.py $filename 'cell_methods' 'area: standard_deviation'
     done
     rm $anlDir/*sprd*.idx
 fi
@@ -135,7 +161,11 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     done
     echo "Completed subsetParamByLevel"
     rm $anlDir/*meananl*All_Levels*
+    numFiles=`ls -1 $anlDir/*meananl* | wc -l`
+    counter=0
     for anlFile in $anlDir/*meananl*; do
+        counter=$(( $counter + 1 ))
+        echo "file $counter/$numFiles"
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
@@ -149,9 +179,9 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo "Size after:"
         du -m $filename
     done
-    rm $anlDir/*mean*.idx
+    rm $anlDir/*meananl*.idx
 fi
-if [[ -z $file_type || $file_type == 'fg' ]]; then
+if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
     # First guess spread - finds all first guess files and subsets by param
     for fgFile in `find $in_dir | grep 'sprdfg' | sort`; do
         echo "Starting fg processing"
@@ -163,7 +193,7 @@ if [[ -z $file_type || $file_type == 'fg' ]]; then
         fi
     done
     echo "Completed subsetParam on fg"
-    for fgFile in $fgDir/*; do
+    for fgFile in $fgDir/*sprdfg*; do
         $subsetLevelExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -173,8 +203,46 @@ if [[ -z $file_type || $file_type == 'fg' ]]; then
     done
     rm $fgDir/*All_Levels*
 
-    for fgFile in $fgDir/*; do
+    for fgFile in $fgDir/*sprdfg*; do
         filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_spread_$year/" | sed 's/grb/nc/'`
+        echo $filename
+        >&2 echo "converting $fgFile to netcdf"
+        #convert_ncl $fgFile $filename
+        convert_cfgrib $fgFile $filename
+        #rm $fgFile
+        nccopy -d 6 -k nc4 $filename ${filename}.compressed
+        echo "Size before:"
+        du -m $filename
+        mv ${filename}.compressed $filename
+        echo "Size after:"
+        du -m $filename
+        $common_dir/add_var_attr.py $filename 'cell_methods' 'area: standard_deviation'
+    done
+fi
+if [[ -z $file_type || $file_type == 'meanfg' ]]; then
+    # First guess mean - finds all mean first guess files and subsets by param
+    for fgFile in `find $in_dir | grep 'meanfg' | sort`; do
+        echo "Starting fg processing"
+        $subsetParamExe $fgFile -o $fgDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $fgFile"
+            exit 1
+        fi
+    done
+    echo "Completed subsetParam on fg"
+    for fgFile in $fgDir/*meanfg*; do
+        $subsetLevelExe $fgFile -o $fgDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParamByLevel Failed on $fgFile"
+            exit 1
+        fi
+    done
+    rm $fgDir/*All_Levels*
+
+    for fgFile in $fgDir/*meanfg*; do
+        filename=`echo $fgFile | sed "s/pgrbensmeanfg/fg_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
@@ -196,4 +264,5 @@ if [[ -z $file_type || $file_type == 'obs' ]]; then
 
     cd $obsDir; tar -cvzf psobs_$year.tgz *; cd -
     rm $obsDir/${year}*
+    #dsarch -DS ds131.3 -AM -NO -NB -GN PREPOBS -DF ASCII -FF TAR.GZ -LF psobs_$year.tgz -MF psobs_$year.tgz
 fi

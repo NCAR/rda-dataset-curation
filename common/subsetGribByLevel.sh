@@ -43,17 +43,18 @@ separateWgribLevels()
     totInv=`cat $inventory | wc -l`
     for(( i=0; i<$levels_len; i++ )); do
         outfile=$outdir`echo $fileBasename | sed "s/All_Levels/${grepLevelsName[$i]}/"`
-        cat $inventory | egrep ${grepLevels[$i]} > tmpInv
-        invLen=`cat tmpInv | wc -l`
+        tmpInv="tmpInv$RANDOM"
+        cat $inventory | egrep ${grepLevels[$i]} > $tmpInv
+        invLen=`cat $tmpInv | wc -l`
         totLines=$(( invLen + totLines ))
         if [[ $invLen -gt 0 ]]; then
             echo $invLen
             echo $totLines
         fi
         if [[ $invLen -ne 0 ]]; then
-            cat tmpInv | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
+            cat $tmpInv | wgrib -i $file -grib -append -o $outfile >/dev/null 2>&1
         fi
-
+    rm $tmpInv
     done
         if [[ $totLines -eq $totInv ]]; then
             echo "i is $i"
@@ -80,7 +81,7 @@ separateWgrib2Levels()
     echo "$levels"
     # change outfile depending on the level--is a regex
     grepLevels=(    "surface" '10 m above' "1*2 m above|[2-9]0 m above|[1-9]00 m above"  "m below"  "sigma"       "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'boundary layer' 'low cloud' 'middle cloud' 'high cloud' 'convective cloud' '300 K|350 K|330 K')
-    grepLevelsName=("sfc"     '10 m' "height"     "depth_cm"     "sigma-level" "isotherm" "tropopause" "mb"  'K'  'MSL' 'atmos_col'         'nom_top'           'boundary_layer' 'low_cld'   'middle_cld'   'high_cld'   'convective_cld' 'K')
+    grepLevelsName=("sfc"     '10m' "height"     "depth_cm"     "sigma-level" "isotherm" "tropopause" "mb"  'K'  'MSL' 'atmos_col'         'nom_top'           'boundary_layer' 'low_cld'   'middle_cld'   'high_cld'   'convective_cld' 'K')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
