@@ -12,7 +12,8 @@ convert_g1_to_g2()
     echo "Done converting grib1 to grib2"
     infile=$1
     outfile=$2
-    cnvgrib -g12 -nv $infile $outfile
+    echo "cnvgrib -g12 -nv $infile $outfile"
+    cnvgrib -g12 -p0 -nv $infile $outfile
     grb1msgs=`wgrib $infile | wc -l`
     grb2msgs=`wgrib2 ${infile}.grb2 | wc -l`
     if [[ grb1msgs -ne grb2msgs ]]; then #cnvgrib bug (I think) need to reduce size of original
