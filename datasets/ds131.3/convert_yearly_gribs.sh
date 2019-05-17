@@ -119,8 +119,11 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         fi
     done
     rm $anlDir/*sprdanl*All_Levels*
-
+    numFiles=`ls -1 $anlDir/*sprdanl* | wc -l`
+    counter=0
     for anlFile in $anlDir/*sprdanl*; do
+        counter=$(( $counter + 1 ))
+        echo "file $counter/$numFiles"
         filename=`echo $anlFile | sed "s/pgrbenssprdanl/anl_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
@@ -202,9 +205,12 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
             exit 1
         fi
     done
-    rm $fgDir/*All_Levels*
-
+    rm $fgDir/*sprdfg*All_Levels*
+    numFiles=`ls -1 $fgDir/*spreadfg* | wc -l`
+    counter=0
     for fgFile in $fgDir/*sprdfg*; do
+        counter=$(( $counter + 1 ))
+        echo "file $counter/$numFiles"
         filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
@@ -240,7 +246,7 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
             exit 1
         fi
     done
-    rm $fgDir/*All_Levels*
+    rm $fgDir/*meanfg*All_Levels*
 
     for fgFile in $fgDir/*meanfg*; do
         filename=`echo $fgFile | sed "s/pgrbensmeanfg/fg_mean_$year/" | sed 's/grb/nc/'`
