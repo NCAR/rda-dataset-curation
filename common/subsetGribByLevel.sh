@@ -80,7 +80,7 @@ separateWgrib2Levels()
     echo "levels are"
     echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=(":2 m"    "surface" '10 m above' "1*2 m above|[2-9]0 m above|[1-9]00 m above"  "m below"  "sigma"       "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'boundary layer' 'low cloud' 'middle cloud' 'high cloud' 'convective cloud' '300 K|350 K|330 K')
+    grepLevels=(":2 m above"    "surface" '10 m above' "12 m above|[2-9]0 m above|[1-9]00 m above"  "m below"  "sigma"       "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'boundary layer' 'low cloud' 'middle cloud' 'high cloud' 'convective cloud' '300 K|350 K|330 K')
     grepLevelsName=("2m"  "sfc"     '10m' "height"     "depth_cm"     "sigma-level" "isotherm" "tropopause" "mb"  'K'  'MSL' 'atmos_col'         'nom_top'           'boundary_layer' 'low_cld'   'middle_cld'   'high_cld'   'convective_cld' 'K')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"

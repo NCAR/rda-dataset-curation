@@ -10,23 +10,25 @@ usage()
 convert_g1_to_g2()
 {
     echo "Done converting grib1 to grib2"
-    g1infile=$1
-    g2outfile=$2
-    echo "cnvgrib -g12 -nv $g1infile $g2outfile"
-    cnvgrib -g12 -p0 -nv $g1infile $g2outfile
-    grb1msgs=`wgrib $g1infile | wc -l`
-    grb2msgs=`wgrib2 ${g1infile}.grb2 | wc -l`
-    if [[ grb1msgs -ne grb2msgs ]]; then #cnvgrib bug (I think) need to reduce size of original
-        >&2 echo "number of messages are different after grb1->grb2 $grb1msgs vs $grb2msgs"
-        tophalf=$(( $grb1msgs / 2 ))
-        bothalf=$(( $grb1msgs - $tophalf ))
-        wgrib $g1infile | head -$tophalf | wgrib -i $g1infile -grib -o ${g1infile}.1
-        wgrib $g1infile | tail -$bothalf | wgrib -i $g1infile -grib -o ${g1infile}.2
-        cnvgrib -g12 -nv ${g1infile}.1 ${g1infile}.1.grb2
-        cnvgrib -g12 -nv ${g1infile}.2 ${g1infile}.2.grb2
-        mv ${g1infile}.1.grb2 $g2outfile
-        cat ${g1infile}.2.grb2 >> $g2outfile
-    fi
+    local g1infile=$1
+    local g2outfile=$2
+    $common_dir/convertG12.sh $g1infile $g2outfile
+
+#    echo "cnvgrib -g12 -nv $g1infile $g2outfile"
+#    cnvgrib -g12 -p0 -nv $g1infile $g2outfile
+#    grb1msgs=`wgrib $g1infile | wc -l`
+#    grb2msgs=`wgrib2 ${g1infile}.grb2 | wc -l`
+#    if [[ grb1msgs -ne grb2msgs ]]; then #cnvgrib bug (I think) need to reduce size of original
+#        >&2 echo "number of messages are different after grb1->grb2 $grb1msgs vs $grb2msgs"
+#        tophalf=$(( $grb1msgs / 2 ))
+#        bothalf=$(( $grb1msgs - $tophalf ))
+#        wgrib $g1infile | head -$tophalf | wgrib -i $g1infile -grib -o ${g1infile}.1
+#        wgrib $g1infile | tail -$bothalf | wgrib -i $g1infile -grib -o ${g1infile}.2
+#        cnvgrib -g12 -p0 -nv ${g1infile}.1 ${g1infile}.1.grb2
+#        cnvgrib -g12 -p0 -nv ${g1infile}.2 ${g1infile}.2.grb2
+#        mv ${g1infile}.1.grb2 $g2outfile
+#        cat ${g1infile}.2.grb2 >> $g2outfile
+#    fi
     echo "Done converting grib1 to grib2"
 }
 convert_cfgrib()
