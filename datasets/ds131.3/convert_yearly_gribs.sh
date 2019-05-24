@@ -219,7 +219,7 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
         #rm $fgFile
-        nccopy -d 6 -k nc4 $filename ${filename}.compressed
+        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
         mv ${filename}.compressed $filename
@@ -261,7 +261,7 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
         #rm $fgFile
-        nccopy -d 6 -k nc4 $filename ${filename}.compressed
+        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
         mv ${filename}.compressed $filename
