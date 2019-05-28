@@ -11,8 +11,8 @@
 # mean, spread, fg processing are in separate batch jobs
 #
 
-
-filelist=`find /gpfs/fs1/collections/rda/transfer/20CRv3/20CRv3si/ensda_451/ -maxdepth 2 -mindepth 2 | sort`
+root_dir='/gpfs/fs1/collections/rda/transfer/20CRv3/20CRv3si'
+filelist=`find ${root_dir}/ensda_451/ -maxdepth 2 -mindepth 2 | sort`
 from=1800 # less than actual data
 to=2050   # more thna actual data
 if [[ ! -z $1 ]]; then
@@ -30,7 +30,7 @@ fi
 echo "from: $from"
 echo "to: $to"
 for file in $filelist; do
-    bn=`basename $file`
+    bn=`basename $file` # $bn is the year
     if [[ $bn -ge $from && $bn -le $to ]]; then
         echo "Executing $bn"
         sbatch -J "${bn}_mean" -o logs/${bn}_mean.out -e logs/${bn}_mean.out slurm_job.tcsh $file 'mean'
@@ -42,5 +42,8 @@ for file in $filelist; do
         sbatch -J "${bn}_spread_fg" -o logs/${bn}_spread_fg.out -e logs/${bn}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
         sleep 5
         sbatch -J "${bn}_obs" -o logs/${bn}_obs.out -e logs/${bn}_obs.out slurm_job.tcsh $file 'obs'
+        sleep 5
+        sbatch -J "${bn}_sflx" -o logs/${bn}_sflx.out -e logs/${bn}_sflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$bn 'sflx'
+
     fi
 done
