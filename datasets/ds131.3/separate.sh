@@ -27,11 +27,8 @@ newInventory="newInventory$RANDOM"
 wgrib2 $ingrib > $inventory
 
 while read -r line; do
-    echo $line
-
     grep "$line" $inventory >> $newInventory
     rc=$?
-    echo $rc
     if [[ $rc -eq 1 ]]; then
         echo "$line not found in grib file"
         exit 1
