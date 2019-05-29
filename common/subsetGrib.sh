@@ -39,14 +39,18 @@ separateWgribParams()
     IFS=$'\n' # Make separator \n
     file=$1
     outdir=$2
-    fileBasename=`basename $file | sed 's/_[0-9]*//g' | sed 's/\.grb2//g' `
+    fileBasename=`basename $file | sed 's/_[0-9]*.*$//g' | sed 's/\.grb2//g' `
     echo "basename is $fileBasename"
     params=`wgrib $file | awk -F: '{print $4}' | sort -u` # Get all Params
     for param in $params; do
         echo "separating $param"
 
-        outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
-        wgrib $file | grep $param | wgrib -i $file -append -grib -o $outfile >/dev/null
+        if [[ `echo $param | wc -c` -gt 10 ]]; then # Param is incorrect
+            echo "$param seems wrong, skipping"
+        else
+            outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
+            wgrib $file | grep $param | wgrib -i $file -append -grib -o $outfile >/dev/null
+        fi
     done
 }
 separateWgrib2Params()
@@ -54,14 +58,17 @@ separateWgrib2Params()
     IFS=$'\n' # Make separator \n
     file=$1
     outdir=$2
-    fileBasename=`basename $file | sed 's/_[0-9]*//g' | sed 's/\.grb2//g' `
+    fileBasename=`basename $file | sed 's/_[0-9]*.*$//g' | sed 's/\.grb2//g' `
     echo "basename is $fileBasename"
     params=`wgrib2 $file | awk -F: '{print $4}' | sort -u` # Get all Params
     for param in $params; do
         echo "separating $param"
-
-        outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
-        wgrib2 $file | grep $param | wgrib2 -i $file -append -grib $outfile >/dev/null
+        if [[ `echo $param | wc -c` -gt 10 ]]; then # Param is incorrect
+            echo "$param seems wrong, skipping"
+        else
+            outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
+            wgrib2 $file | grep $param | wgrib2 -i $file -append -grib $outfile >/dev/null
+        fi
     done
 }
 if [[ $# -lt 1 ]]; then
