@@ -33,6 +33,12 @@ convert_cfgrib()
         >&2 echo "cfgrib failed on $infile"
         exit 1;
     fi
+
+    # Add DOI here for consistency
+    $common_dir/add_DOI.py $outfile '10.5065/H93G-WS83'
+    # Add repo location
+    $common_dir/add_nc_global.py $outfile 'RDA-Curation-Repo', 'https://github.com/NCAR/rda-dataset-curation/tree/master/datasets/ds131.3'
+
 }
 convert_ncl()
 {
