@@ -7,6 +7,16 @@ usage()
     echo "in_dir"
     exit 1
 }
+check_invariant()
+{
+    local filename=$1
+    echo $filename | egrep "LAND|HGT_sfc"
+    rc=$?
+    if [[ $rc -eq 0 ]]; then
+        return 5
+    fi
+    return 0
+}
 convert_g1_to_g2()
 {
     echo "Done converting grib1 to grib2"
@@ -37,7 +47,7 @@ convert_cfgrib()
     # Add DOI here for consistency
     $common_dir/add_DOI.py $outfile '10.5065/H93G-WS83'
     # Add repo location
-    $common_dir/add_nc_global.py $outfile 'RDA-Curation-Repo', 'https://github.com/NCAR/rda-dataset-curation/tree/master/datasets/ds131.3'
+    $common_dir/add_nc_global.py $outfile 'RDA-Curation-Repo' 'https://github.com/NCAR/rda-dataset-curation/tree/master/datasets/ds131.3'
 
 }
 convert_ncl()
@@ -77,6 +87,7 @@ echo "---------------------\n"
 echo "Initializing output directories - anl/ obs/ fg/ in $working_dir "
 working_dir=$out_dir/$year
 mkdir $working_dir 2>/dev/null
+invariants=$working_dir/invariants
 anlDir="$working_dir/anl"
 obsDir="$working_dir/obs"
 fgDir="$working_dir/fg"
@@ -131,7 +142,7 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
         #rm $anlFile
-        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
+        nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
         mv ${filename}.compressed $filename
@@ -190,18 +201,27 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     done
     echo "Completed subsetParamByLevel"
     rm $anlDir/*meananl*All_Levels*
+
+
     numFiles=`ls -1 $anlDir/*meananl* | wc -l`
     counter=0
     for anlFile in $anlDir/*meananl*; do
+        ## Inject LAND into files;
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
+        cat $invariants/land.grb2 >> $anlFile
+        check_invariant
+        rc=$?
+        if [[ $rc -eq 5 ]]; then # If it's an invariant
+            continue
+        fi
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
         #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
         #rm $anlFile
-        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
+        nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
         mv ${filename}.compressed $filename
@@ -246,7 +266,7 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
         #rm $fgFile
-        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
+        nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
         mv ${filename}.compressed $filename
@@ -293,7 +313,7 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
         #rm $fgFile
-        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
+        nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
         du -m $filename
         mv ${filename}.compressed $filename
