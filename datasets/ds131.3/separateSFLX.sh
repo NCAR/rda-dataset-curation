@@ -6,7 +6,7 @@
 usage()
 {
     echo "Usage: "
-    echo "    ./seaparateFG.sh [in dir] [out_dir]"
+    echo "    ./seaparateSFLX.sh [in dir] [out_dir]"
     exit 1
 }
 
@@ -17,12 +17,15 @@ fi
 in_dir=$1
 out_dir=$2
 
+for tarFile in $in_dir/*tar; do
+    tar -xvf $tarFile -C $out_dir
+done
 
-for fgFile in `find $in_dir | grep 'meanfg' | sort`; do
-    newFilename=`echo $fgFile | sed 's/pgrbensmeanfg/pgrbensmeananl/'`
+for sflxFile in `find $out_dir | grep 'sflxgrbensmeanfg' | sort`; do
+    newFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/sflxpgrbensmeananl/'`
     newFilename=`basename $newFilename`
-    remFilename=`echo $fgFile | sed 's/pgrbensmeanfg/pgrbensmean_fgonly/'`
+    remFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/grbensmean_fgonly/'`
     remFilename=`basename $remFilename`
-    echo "./separate.sh FG_anl_vars_grib2.txt $fgFile $outdir/$newFilename $outdir/$remFilename"
-    ./separate.sh FG_anl_vars_grib2.txt $fgFile $out_dir/$newFilename $out_dir/$remFilename
+    echo "./separate.sh FG_anl_vars_grib2.txt $sflxFile $outdir/$newFilename $outdir/$remFilename"
+    ./separate.sh SFLX_anl_vars_grib2.txt $sflxFile $out_dir/$newFilename $out_dir/$remFilename
 done

@@ -82,6 +82,9 @@ obsDir="$working_dir/obs"
 fgDir="$working_dir/fg"
 sflxDir="$working_dir/sflx"
 
+tmp_FG="$working_dir/tmp_FG"
+tmp_SFLX="$working_dir/tmp_SFLX"
+
 mkdir $anlDir
 mkdir $obsDir
 mkdir $fgDir
@@ -147,6 +150,26 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     echo "Starting mean processing"
     echo "subsetting meananl param"
     for anlFile in `find $in_dir | grep 'meananl' | sort`; do
+        $subsetParamExe $anlFile -o $anlDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $anlFile"
+            exit 1
+        fi
+    done
+
+    ## do the sflx and fg anl files
+
+    for anlFile in `find $tmp_FG | grep 'meananl' | sort`; do
+        $subsetParamExe $anlFile -o $anlDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $anlFile"
+            exit 1
+        fi
+    done
+
+    for anlFile in `find $tmp_SFLX | grep 'meananl' | sort`; do
         $subsetParamExe $anlFile -o $anlDir
         rc=$?
         if [[ $rc -ne 0 ]]; then

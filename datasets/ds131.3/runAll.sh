@@ -35,15 +35,15 @@ for file in $filelist; do
         echo "Executing $bn"
         sbatch -J "${bn}_mean" -o logs/${bn}_mean.out -e logs/${bn}_mean.out slurm_job.tcsh $file 'mean'
         sleep 5
-        sbatch -J "${bn}_sprd" -o logs/${bn}_spread.out -e logs/${bn}_spread.out slurm_job.tcsh $file 'spread'
-        sleep 5
-        sbatch -J "${bn}_mean_fg" -o logs/${bn}_mean_fg.out -e logs/${bn}_mean_fg.out slurm_job.tcsh $file 'meanfg'
-        sleep 5
-        sbatch -J "${bn}_spread_fg" -o logs/${bn}_spread_fg.out -e logs/${bn}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
-        sleep 5
-        sbatch -J "${bn}_obs" -o logs/${bn}_obs.out -e logs/${bn}_obs.out slurm_job.tcsh $file 'obs'
-        sleep 5
-        sbatch -J "${bn}_sflx" -o logs/${bn}_sflx.out -e logs/${bn}_sflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$bn 'sflx'
-
+#        sbatch -J "${bn}_sprd" -o logs/${bn}_spread.out -e logs/${bn}_spread.out slurm_job.tcsh $file 'spread'
+#        sleep 5
+#        sbatch -J "${bn}_mean_fg" -o logs/${bn}_mean_fg.out -e logs/${bn}_mean_fg.out slurm_job.tcsh $file 'meanfg'
+#        sleep 5
+#        sbatch -J "${bn}_spread_fg" -o logs/${bn}_spread_fg.out -e logs/${bn}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
+#        sleep 5
+#        sbatch -J "${bn}_obs" -o logs/${bn}_obs.out -e logs/${bn}_obs.out slurm_job.tcsh $file 'obs'
+#        sleep 5
+#        sbatch -J "${bn}_sflx" -o logs/${bn}_sflx.out -e logs/${bn}_sflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$bn 'sflx'
+#
     fi
 done
