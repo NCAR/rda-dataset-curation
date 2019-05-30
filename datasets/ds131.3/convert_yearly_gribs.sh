@@ -282,8 +282,17 @@ fi
 ######################
 if [[ -z $file_type || $file_type == 'meanfg' ]]; then
     # First guess mean - finds all mean first guess files and subsets by param
-    for fgFile in `find $in_dir | grep 'meanfg' | sort`; do
-        echo "Starting fg processing"
+   # for fgFile in `find $in_dir | grep 'meanfg' | sort`; do
+   #     echo "Starting fg processing"
+   #     $subsetParamExe $fgFile -o $fgDir
+   #     rc=$?
+   #     if [[ $rc -ne 0 ]]; then
+   #         >&2 echo "subsetParam Failed on $fgFile"
+   #         exit 1
+   #     fi
+   # done
+    echo "Starting fg processing"
+    for fgFile in `find $tmp_FG | grep 'mean_fgonly' | sort`; do
         $subsetParamExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -291,8 +300,9 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
             exit 1
         fi
     done
+
     echo "Completed subsetParam on fg"
-    for fgFile in $fgDir/*meanfg*; do
+    for fgFile in $fgDir/*mean_fg*; do
         $subsetLevelExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -302,12 +312,12 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
     done
     rm $fgDir/*meanfg*All_Levels*
 
-    numFiles=`ls -1 $fgDir/*meanfg* | wc -l`
+    numFiles=`ls -1 $fgDir/*mean_fg* | wc -l`
     counter=0
-    for fgFile in $fgDir/*meanfg*; do
+    for fgFile in $fgDir/*mean_fg*; do
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
-        filename=`echo $fgFile | sed "s/pgrbensmeanfg/fg_mean_$year/" | sed 's/grb/nc/'`
+        filename=`echo $fgFile | sed "s/pgrbensmean_fgonly/fg_mean_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
@@ -320,8 +330,8 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         echo "Size after:"
         du -m $filename
     done
-    rm $fgDir/*meanfg*.idx
-    rm $fgDir/*meanfg*grb*
+    rm $fgDir/*mean_fg*.idx
+    rm $fgDir/*mean_fg*grb*
 fi
 #######################
 ## Observation Files ##
@@ -336,15 +346,46 @@ if [[ -z $file_type || $file_type == 'obs' ]]; then
     rm $obsDir/${year}*
     #dsarch -DS ds131.3 -AM -NO -NB -GN PREPOBS -DF ASCII -FF TAR.GZ -LF psobs_$year.tgz -MF psobs_$year.tgz
 fi
+##############
+## SFLX MEAN #
+##############
 if [[ -z $file_type || $file_type == 'sflx' ]]; then
     echo "Surface flux"
-#    cp $in_dir/* $sflxDir
-#    for tarFile in $sflxDir/*; do
-#        tar -xvf $tarFile -C $sflxDir
-#    done
-#    rm $sflxDir/*.tar
-#
-#
+    echo "Starting fg processing"
+    for sflxFile in `find $tmp_SFLX | grep 'mean_fgonly' | sort`; do
+        $subsetParamExe $sflxFile -o $sflxDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $sflxFile"
+            exit 1
+        fi
+    done
+    for sflxFile in $sflxDir/*mean_fg*; do
+        $subsetLevelExe "$sflxFile" -o $sflxDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParamByLevel Failed on $sflxFile"
+            exit 1
+        fi
+    done
+
+    numFiles=`ls -1 $sflxDir/*mean_fg* | wc -l`
+    counter=0
+    for sflxFile in $sflxDir/*mean_fg*; do
+        counter=$(( $counter + 1 ))
+        echo "file $counter/$numFiles"
+        filename=`echo $sflxFile | sed "s/grbensmean_fgonly/sflx_$year/" | sed 's/grb.*$/nc/'`
+        echo $filename
+        >&2 echo "converting $sflxFile to netcdf"
+        convert_cfgrib $sflxFile $filename
+        #rm $fgFile
+        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
+        echo "Size before:"
+        du -m $filename
+        mv ${filename}.compressed $filename
+        echo "Size after:"
+        du -m $filename
+
 #
 #    for sflxFile in `find $sflxDir | grep 'meanfg' | sort`; do
 #        echo "Starting fg processing"

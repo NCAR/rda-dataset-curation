@@ -22,7 +22,7 @@ for tarFile in $in_dir/*tar; do
 done
 
 for sflxFile in `find $out_dir | grep 'sflxgrbensmeanfg' | sort`; do
-    newFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/sflxpgrbensmeananl/'`
+    newFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/pgrbensmeananl/'`
     newFilename=`basename $newFilename`
     remFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/grbensmean_fgonly/'`
     remFilename=`basename $remFilename`
