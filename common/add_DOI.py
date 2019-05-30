@@ -20,5 +20,7 @@ def add_DOI(filename, doi):
 if len(sys.argv) <= 2:
     usage()
     exit(1)
+filename = sys.argv[1]
+DOI = sys.argv[2]
 
-add_DOI(sys.argv[1], DOI)
+add_DOI(filename, DOI)

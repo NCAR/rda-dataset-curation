@@ -35,8 +35,8 @@ separateWgribLevels()
     echo "levels are"
     echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=("sfc" "10 m above"    "1*2 m above|[2-9]0 m above|[1-9]00 m above" "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'      'MSL' 'atmos col' 'convect-cld'       'nom. top' 'bndary-layer' 'high cld' 'low cld' 'mid cld' '300K|350K|330K')
-    grepLevelsName=("sfc" "10m" "height" "depth_cm" "sigma" "isotherm" "tropopause" "pres" 'K_level' 'msl' 'atmos-col' 'convect-cld-layer' 'nom_top'  'boundary_layer' 'high_cld' 'low_cld' 'mid_cld' 'K')
+    grepLevels=(":2 m above" "sfc" "10 m above"    "12 m above|[2-9]0 m above|[1-9]00 m above" "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'        'MSL' 'atmos col' 'convect-cld'       'nom. top' 'bndary-layer' 'low cld lay' 'low cld top' 'low cld bot' 'middle cld lay' 'middle cld top' 'middle cld bot' 'high cld lay' 'high cld top' 'high cld bot' '300K|350K|330K')
+    grepLevelsName=("2m"     "sfc" "10m"           "height"                                    "depth"    "sigma" "isotherm" "tropopause" "pres" 'isentrope' 'msl' 'atmos-col' 'convective-cld'    'nom-top'  'boundary-layer' 'low-cld' 'low-cld-top' 'low-cld-bot'  'mid-cld' 'mid-cld-top' 'mid-cld-bot'      'high-cld' 'high-cld-top' 'high-cld-bot' 'isentrope')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
@@ -80,8 +80,8 @@ separateWgrib2Levels()
     echo "levels are"
     echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=(    "surface" '10 m above' "1*2 m above|[2-9]0 m above|[1-9]00 m above"  "m below"  "sigma"       "isotherm" "tropopause" 'mb:' 'K$' 'MSL' 'entire atmosphere' 'top of atmosphere' 'boundary layer' 'low cloud' 'middle cloud' 'high cloud' 'convective cloud' '300 K|350 K|330 K')
-    grepLevelsName=("sfc"     '10m' "height"     "depth_cm"     "sigma-level" "isotherm" "tropopause" "mb"  'K'  'MSL' 'atmos_col'         'nom_top'           'boundary_layer' 'low_cld'   'middle_cld'   'high_cld'   'convective_cld' 'K')
+    grepLevels=(":2 m above"    "surface" '10 m above' "12 m above|[2-9]0 m above|[1-9]00 m above"  "m below"  "sigma"       "isotherm" "tropopause" 'mb:'  'K$'         'MSL' 'entire atmosphere' 'top of atmosphere' 'boundary layer' 'low cloud layer' 'low cloud top' 'low cloud bottom' 'middle cloud layer' 'middle cloud top' 'middle cloud bottom' 'high cloud layer' 'high cloud top' 'high cloud bottom' 'convective cloud' '300 K|350 K|330 K' 'hybrid level')
+    grepLevelsName=("2m"        "sfc"     '10m'        "height"                                     "depth"    "sigma"       "isotherm" "tropopause" "pres" 'isentrope'  'MSL' 'atmos-col'         'nom-top'           'boundary-layer' 'low-cld' 'low-cld-top' 'low-cld-bot'  'mid-cld' 'mid-cld-top' 'mid-cld-bot'      'high-cld' 'high-cld-top' 'high-cld-bot'   'convective-cld'   'isentrope'   'hybrid' )
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
