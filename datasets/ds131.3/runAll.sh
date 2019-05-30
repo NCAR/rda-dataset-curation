@@ -30,20 +30,22 @@ fi
 echo "from: $from"
 echo "to: $to"
 for file in $filelist; do
-    bn=`basename $file` # $bn is the year
-    if [[ $bn -ge $from && $bn -le $to ]]; then
-        echo "Executing $bn"
-        sbatch -J "${bn}_mean" -o logs/${bn}_mean.out -e logs/${bn}_mean.out slurm_job.tcsh $file 'mean'
+    year=`basename $file` # $year is the year
+    if [[ $year -ge $from && $year -le $to ]]; then
+        echo "Executing $year"
+
+        ./separateByYear.sh $year
+        sbatch -J "${year}_mean" -o logs/${year}_mean.out -e logs/${year}_mean.out slurm_job.tcsh $file 'mean'
         sleep 5
-#        sbatch -J "${bn}_sprd" -o logs/${bn}_spread.out -e logs/${bn}_spread.out slurm_job.tcsh $file 'spread'
+#        sbatch -J "${year}_sprd" -o logs/${year}_spread.out -e logs/${year}_spread.out slurm_job.tcsh $file 'spread'
+        sleep 5
+        sbatch -J "${year}_mean_fg" -o logs/${year}_mean_fg.out -e logs/${year}_mean_fg.out slurm_job.tcsh $file 'meanfg'
 #        sleep 5
-#        sbatch -J "${bn}_mean_fg" -o logs/${bn}_mean_fg.out -e logs/${bn}_mean_fg.out slurm_job.tcsh $file 'meanfg'
+#        sbatch -J "${year}_spread_fg" -o logs/${year}_spread_fg.out -e logs/${year}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
 #        sleep 5
-#        sbatch -J "${bn}_spread_fg" -o logs/${bn}_spread_fg.out -e logs/${bn}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
-#        sleep 5
-#        sbatch -J "${bn}_obs" -o logs/${bn}_obs.out -e logs/${bn}_obs.out slurm_job.tcsh $file 'obs'
-#        sleep 5
-#        sbatch -J "${bn}_sflx" -o logs/${bn}_sflx.out -e logs/${bn}_sflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$bn 'sflx'
+        sbatch -J "${year}_obs" -o logs/${year}_obs.out -e logs/${year}_obs.out slurm_job.tcsh $file 'obs'
+        sleep 5
+        sbatch -J "${year}_sflx" -o logs/${year}_sflx.out -e logs/${year}_sflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'sflx'
 #
     fi
 done

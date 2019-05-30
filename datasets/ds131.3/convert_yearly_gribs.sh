@@ -368,6 +368,7 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
             exit 1
         fi
     done
+    rm $fgDir/*meanfg*All_Levels*
 
     numFiles=`ls -1 $sflxDir/*mean_fg* | wc -l`
     counter=0
@@ -386,66 +387,7 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
         echo "Size after:"
         du -m $filename
 
-#
-#    for sflxFile in `find $sflxDir | grep 'meanfg' | sort`; do
-#        echo "Starting fg processing"
-#        $subsetParamExe $sflxFile -o $sflxDir
-#        rc=$?
-#        if [[ $rc -ne 0 ]]; then
-#            >&2 echo "subsetParam Failed on $sflxFile"
-#            exit 1
-#        fi
-#        rm $sflxFile
-#    done
-#    #echo "Completed subsetParam on fg"
-#
-#
-#    #for sflxFile in `find $sflxDir | grep 'spreadfg' | sort`; do
-#    #    echo "Starting fg processing"
-#    #    $subsetParamExe $sflxFile -o $sflxDir
-#    #    rc=$?
-#    #    if [[ $rc -ne 0 ]]; then
-#    #        >&2 echo "subsetParam Failed on $sflxFile"
-#    #        exit 1
-#    #    fi
-#    #    rm $sflxFile
-#    #done
-#    #echo "Completed subsetParam on fg"
-#
-#    for sflxFile in $sflxDir/*meanfg*; do
-#        $subsetLevelExe "$sflxFile" -o $sflxDir
-#        rc=$?
-#        if [[ $rc -ne 0 ]]; then
-#            >&2 echo "subsetParamByLevel Failed on $sflxFile"
-#            exit 1
-#        fi
-#    done
-
-    #rm $fgDir/*meanfg*All_Levels*
-
-    numFiles=`ls -1 $sflxDir/*meanfg* | wc -l`
-    counter=0
-    for sflxFile in $sflxDir/*meanfg*; do
-        counter=$(( $counter + 1 ))
-        echo "file $counter/$numFiles"
-        filename=`echo $sflxFile | sed "s/sflxgrbensmeanfg/sflx_$year/" | sed 's/grb/nc/'`
-        echo $filename
-        >&2 echo "converting $fgFile to netcdf"
-        #convert_ncl $fgFile $filename
-        convert_cfgrib $sflxFile $filename
-    #    #rm $fgFile
-    #    nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
-    #    echo "Size before:"
-    #    du -m $filename
-    #    mv ${filename}.compressed $filename
-    #    echo "Size after:"
-    #    du -m $filename
     done
     #rm $fgDir/*meanfg*.idx
     #rm $fgDir/*meanfg*grb*
-
-
-
-
-
 fi
