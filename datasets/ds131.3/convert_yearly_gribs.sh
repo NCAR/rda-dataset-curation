@@ -87,7 +87,7 @@ echo "---------------------\n"
 echo "Initializing output directories - anl/ obs/ fg/ in $working_dir "
 working_dir=$out_dir/$year
 mkdir $working_dir 2>/dev/null
-invariants=$working_dir/invariants
+invariants=invariants
 anlDir="$working_dir/anl"
 obsDir="$working_dir/obs"
 fgDir="$working_dir/fg"
@@ -206,15 +206,17 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
     numFiles=`ls -1 $anlDir/*meananl* | wc -l`
     counter=0
     for anlFile in $anlDir/*meananl*; do
-        ## Inject LAND into files;
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
+
+        ## Inject LAND into files;
         cat $invariants/land.grb2 >> $anlFile
-        check_invariant
+        check_invariant $anlFile
         rc=$?
         if [[ $rc -eq 5 ]]; then # If it's an invariant
             continue
         fi
+
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
@@ -302,7 +304,7 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
     done
 
     echo "Completed subsetParam on fg"
-    for fgFile in $fgDir/*mean_fg*; do
+    for fgFile in $fgDir/*mean*; do
         $subsetLevelExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -310,14 +312,23 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
             exit 1
         fi
     done
-    rm $fgDir/*meanfg*All_Levels*
+    rm $fgDir/*mean*All_Levels*
 
-    numFiles=`ls -1 $fgDir/*mean_fg* | wc -l`
+    numFiles=`ls -1 $fgDir/*mean* | wc -l`
     counter=0
-    for fgFile in $fgDir/*mean_fg*; do
+    for fgFile in $fgDir/*mean*; do
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
-        filename=`echo $fgFile | sed "s/pgrbensmean_fgonly/fg_mean_$year/" | sed 's/grb.*$/nc/'`
+
+        ## Inject LAND into files;
+        cat $invariants/land.grb2 >> $fgFile
+        check_invariant $fgFile
+        rc=$?
+        if [[ $rc -eq 5 ]]; then # If it's an invariant
+            continue
+        fi
+
+        filename=`echo $fgFile | sed "s/pgrbensmean/fg_mean_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
@@ -360,7 +371,14 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
             exit 1
         fi
     done
-    for sflxFile in $sflxDir/*mean_fg*; do
+
+    filename="$sflxDir/grbensmean_DLWRF_All_Levels.grb"
+    aveFilename="$sflxDir/grbensmean_DLWRF_ave_All_Levels.grb"
+    wgrib2 $filename | grep ave | wgrib2 -i $filename -grib $aveFilename
+    wgrib2 $filename | grep -v ave | wgrib2 -i $filename -grib $sflxDir/tmpDLWRF.grb
+    mv $sflxDir/tmpDLWRF.grb $filename
+
+    for sflxFile in $sflxDir/*mean*; do
         $subsetLevelExe "$sflxFile" -o $sflxDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -368,14 +386,23 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
             exit 1
         fi
     done
-    rm $fgDir/*meanfg*All_Levels*
+    rm $sflxDir/*mean*All_Levels*
 
-    numFiles=`ls -1 $sflxDir/*mean_fg* | wc -l`
+    numFiles=`ls -1 $sflxDir/*mean* | wc -l`
     counter=0
-    for sflxFile in $sflxDir/*mean_fg*; do
+    for sflxFile in $sflxDir/*mean*; do
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
-        filename=`echo $sflxFile | sed "s/grbensmean_fgonly/sflx_$year/" | sed 's/grb.*$/nc/'`
+
+        ## Inject LAND into files;
+        cat $invariants/land.grb2 >> $sflxFile
+        check_invariant $sflxFile
+        rc=$?
+        if [[ $rc -eq 5 ]]; then # If it's an invariant
+            continue
+        fi
+
+        filename=`echo $sflxFile | sed "s/grbensmean/sflx_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename

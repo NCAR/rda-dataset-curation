@@ -39,8 +39,8 @@ done < $inputFile
 # At this point, both inventories should be different
 
 # Now to actually separate
-cat $newInventory | wgrib2 -i $ingrib -grib $outgrib1
-cat $inventory | wgrib2 -i $ingrib -grib $outgrib2
+cat $newInventory | wgrib2 -i $ingrib -grib $outgrib1 >/dev/null
+cat $inventory | wgrib2 -i $ingrib -grib $outgrib2 >/dev/null
 
 
 
