@@ -209,8 +209,6 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
 
-        ## Inject LAND into files;
-        cat $invariants/land.grb2 >> $anlFile
         check_invariant $anlFile
         rc=$?
         if [[ $rc -eq 5 ]]; then # If it's an invariant
@@ -229,6 +227,8 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
+        echo "Adding LSM"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
     rm $anlDir/*meananl*grb*
     rm $anlDir/*meananl*.idx
@@ -320,8 +320,6 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
 
-        ## Inject LAND into files;
-        cat $invariants/land.grb2 >> $fgFile
         check_invariant $fgFile
         rc=$?
         if [[ $rc -eq 5 ]]; then # If it's an invariant
@@ -340,9 +338,11 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
+        echo "Adding LSM"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $fgDir/*mean_fg*.idx
-    rm $fgDir/*mean_fg*grb*
+    rm $fgDir/*mean*.idx
+    rm $fgDir/*mean*grb*
 fi
 #######################
 ## Observation Files ##
@@ -372,12 +372,23 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
         fi
     done
 
-    filename="$sflxDir/grbensmean_DLWRF_All_Levels.grb"
-    aveFilename="$sflxDir/grbensmean_DLWRF_ave_All_Levels.grb"
-    wgrib2 $filename | grep ave | wgrib2 -i $filename -grib $aveFilename
-    wgrib2 $filename | grep -v ave | wgrib2 -i $filename -grib $sflxDir/tmpDLWRF.grb
-    mv $sflxDir/tmpDLWRF.grb $filename
+    # Deal with parameters that are averages
+    for i in $sflxDir/*mean*All_Levels.grb; do
+        wgrib2 $i | grep -v '-' >/dev/null;
+        file1=$?
+        wgrib2 $i | grep '-' >/dev/null;
+        file2=$?
+        if [[ $file1 -eq 0 && $file2 -eq 0 ]]; then
+            echo "Splitting averages from $i"
+            filename="$i"
+            aveFilename=`echo $i | sed 's/All_Levels.grb//'`ave_All_Levels.grb
+            wgrib2 $filename | grep ave | wgrib2 -i $filename -grib $aveFilename
+            wgrib2 $filename | grep -v ave | wgrib2 -i $filename -grib $sflxDir/tmpSFLUX.grb
+            mv $sflxDir/tmpSFLUX.grb $filename
+        fi
+    done
 
+    # Subset by level
     for sflxFile in $sflxDir/*mean*; do
         $subsetLevelExe "$sflxFile" -o $sflxDir
         rc=$?
@@ -395,7 +406,6 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
         echo "file $counter/$numFiles"
 
         ## Inject LAND into files;
-        cat $invariants/land.grb2 >> $sflxFile
         check_invariant $sflxFile
         rc=$?
         if [[ $rc -eq 5 ]]; then # If it's an invariant
@@ -413,8 +423,10 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
+        echo "Adding land"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
-    #rm $fgDir/*meanfg*.idx
-    #rm $fgDir/*meanfg*grb*
+    rm $sflxDir/*mean*.grb
+    rm $sflxDir/*mean*.idx
 fi
