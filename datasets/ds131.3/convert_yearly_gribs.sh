@@ -343,6 +343,7 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
     done
     rm $fgDir/*mean*.idx
     rm $fgDir/*mean*grb*
+    rm $tmp_FG/*meananl*
 fi
 #######################
 ## Observation Files ##
@@ -429,4 +430,5 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
     done
     rm $sflxDir/*mean*.grb
     rm $sflxDir/*mean*.idx
+    rm $tmp_SFLX/*meananl*
 fi
