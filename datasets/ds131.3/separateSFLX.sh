@@ -29,7 +29,7 @@ for sflxFile in `find $out_dir | grep 'sflxgrbenssprdfg' | sort`; do
     newFilename=`basename $newFilename`
     remFilename=`echo $sflxFile | sed 's/sflxgrbenssprdfg/grbenssprd_fgonly/'`
     remFilename=`basename $remFilename`
-    echo "./separate.sh $regexDir/FG_anl_vars_grib1.txt $sflxFile $outdir/$newFilename $outdir/$remFilename"
+    echo "./separate.sh $regexDir/SFLX_anl_vars_grib1.txt $sflxFile $outdir/$newFilename $outdir/$remFilename"
     ./separate.sh $regexDir/SFLX_anl_vars_grib1.txt $sflxFile $out_dir/$newFilename $out_dir/$remFilename
 done
 
@@ -39,7 +39,7 @@ for sflxFile in `find $out_dir | grep 'sflxgrbensmeanfg' | sort`; do
     newFilename=`basename $newFilename`
     remFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/grbensmean_fgonly/'`
     remFilename=`basename $remFilename`
-    echo "./separate.sh $regexDir/FG_anl_vars_grib2.txt $sflxFile $outdir/$newFilename $outdir/$remFilename"
+    echo "./separate.sh $regexDir/SFLX_anl_vars_grib2.txt $sflxFile $outdir/$newFilename $outdir/$remFilename"
     ./separate.sh $regexDir/SFLX_anl_vars_grib2.txt $sflxFile $out_dir/$newFilename $out_dir/$remFilename
 done
 

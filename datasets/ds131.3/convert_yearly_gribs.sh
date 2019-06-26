@@ -121,6 +121,17 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
             exit 1
         fi
     done
+
+    ## Do the sflx and fg anl files
+    for anlFile in `find $tmp_FG | grep 'sprdanl' | sort`; do
+        $subsetParamExe $anlFile -o $anlDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $anlFile"
+            exit 1
+        fi
+    done
+
     echo "Completed subsetParam on sprdanl"
     for anlFile in $anlDir/*sprdanl*; do
         $subsetLevelExe $anlFile -o $anlDir
@@ -130,6 +141,15 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
             exit 1
         fi
     done
+    for anlFile in `find $tmp_SFLX | grep 'sprdanl' | sort`; do
+        $subsetParamExe $anlFile -o $anlDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $anlFile"
+            exit 1
+        fi
+    done
+
     rm $anlDir/*sprdanl*All_Levels*
     numFiles=`ls -1 $anlDir/*sprdanl* | wc -l`
     counter=0
@@ -238,7 +258,7 @@ fi
 ########################
 if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
     # First guess spread - finds all first guess files and subsets by param
-    for fgFile in `find $in_dir | grep 'sprdfg' | sort`; do
+    for fgFile in `find $in_dir | grep 'sprd_fgonly' | sort`; do
         echo "Starting fg processing"
         $subsetParamExe $fgFile -o $fgDir
         rc=$?
@@ -248,7 +268,7 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         fi
     done
     echo "Completed subsetParam on fg"
-    for fgFile in $fgDir/*sprdfg*; do
+    for fgFile in $fgDir/*sprd*; do
         $subsetLevelExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -256,13 +276,13 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
             exit 1
         fi
     done
-    rm $fgDir/*sprdfg*All_Levels*
+    rm $fgDir/*sprd*All_Levels*
     numFiles=`ls -1 $fgDir/*sprdfg* | wc -l`
     counter=0
-    for fgFile in $fgDir/*sprdfg*; do
+    for fgFile in $fgDir/*sprd*; do
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
-        filename=`echo $fgFile | sed "s/pgrbenssprdfg/fg_spread_$year/" | sed 's/grb/nc/'`
+        filename=`echo $fgFile | sed "s/pgrbenssprd_fgonly/fg_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
@@ -375,14 +395,14 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
 
     # Deal with parameters that are averages
     for i in $sflxDir/*mean*All_Levels.grb; do
-        wgrib2 $i | grep -v '-' >/dev/null;
+        wgrib2 $i | grep -v 'ave' >/dev/null;
         file1=$?
-        wgrib2 $i | grep '-' >/dev/null;
+        wgrib2 $i | grep 'ave' >/dev/null;
         file2=$?
         if [[ $file1 -eq 0 && $file2 -eq 0 ]]; then
             echo "Splitting averages from $i"
             filename="$i"
-            aveFilename=`echo $i | sed 's/All_Levels.grb//'`ave_All_Levels.grb
+            aveFilename=`echo $i | sed 's/All_Levels.grb/ave_All_Levels.grb/'`
             wgrib2 $filename | grep ave | wgrib2 -i $filename -grib $aveFilename
             wgrib2 $filename | grep -v ave | wgrib2 -i $filename -grib $sflxDir/tmpSFLUX.grb
             mv $sflxDir/tmpSFLUX.grb $filename
@@ -414,6 +434,80 @@ if [[ -z $file_type || $file_type == 'sflx' ]]; then
         fi
 
         filename=`echo $sflxFile | sed "s/grbensmean/sflx_$year/" | sed 's/grb.*$/nc/'`
+        echo $filename
+        >&2 echo "converting $sflxFile to netcdf"
+        convert_cfgrib $sflxFile $filename
+        #rm $fgFile
+        nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
+        echo "Size before:"
+        du -m $filename
+        mv ${filename}.compressed $filename
+        echo "Size after:"
+        du -m $filename
+        echo "Adding land"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
+
+    done
+    rm $sflxDir/*mean*.grb
+    rm $sflxDir/*mean*.idx
+    rm $tmp_SFLX/*meananl*
+fi
+##############
+## SFLX SPRD #
+##############
+if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
+    echo "Surface flux"
+    echo "Starting fg processing"
+    for sflxFile in `find $tmp_SFLX | grep 'sprd_fgonly' | sort`; do
+        $subsetParamExe $sflxFile -o $sflxDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $sflxFile"
+            exit 1
+        fi
+    done
+
+    # Deal with parameters that are averages
+    for i in $sflxDir/*sprd*All_Levels.grb; do
+        wgrib2 $i | grep -v 'ave' >/dev/null;
+        file1=$?
+        wgrib2 $i | grep 'ave' >/dev/null;
+        file2=$?
+        if [[ $file1 -eq 0 && $file2 -eq 0 ]]; then
+            echo "Splitting averages from $i"
+            filename="$i"
+            aveFilename=`echo $i | sed 's/All_Levels.grb/ave_All_Levels.grb/'`
+            wgrib2 $filename | grep ave | wgrib2 -i $filename -grib $aveFilename
+            wgrib2 $filename | grep -v ave | wgrib2 -i $filename -grib $sflxDir/tmpSFLUX.grb
+            mv $sflxDir/tmpSFLUX.grb $filename
+        fi
+    done
+
+    # Subset by level
+    for sflxFile in $sflxDir/*sprd*; do
+        $subsetLevelExe "$sflxFile" -o $sflxDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParamByLevel Failed on $sflxFile"
+            exit 1
+        fi
+    done
+    rm $sflxDir/*sprd*All_Levels*
+
+    numFiles=`ls -1 $sflxDir/*sprd* | wc -l`
+    counter=0
+    for sflxFile in $sflxDir/*sprd*; do
+        counter=$(( $counter + 1 ))
+        echo "file $counter/$numFiles"
+
+        ## Inject LAND into files;
+        check_invariant $sflxFile
+        rc=$?
+        if [[ $rc -eq 5 ]]; then # If it's an invariant
+            continue
+        fi
+
+        filename=`echo $sflxFile | sed "s/grbenssprd/sflx_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename

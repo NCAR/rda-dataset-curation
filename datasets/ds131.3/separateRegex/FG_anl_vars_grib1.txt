@@ -1,42 +1,27 @@
-TMAX:2 m
-TMIN:2 m
-ACPCP:surface
-APCP:surface
-TMP:high cloud top
-TMP:low cloud top
-TMP:middle cloud top
-PRES:high cloud bottom
-PRES:high cloud top
-PRES:low cloud bottom
-PRES:low cloud top
-PRES:middle cloud bottom
-PRES:middle cloud top
-TCDC:boundary layer
-TCDC:low cloud
-TCDC:middle cloud
-TCDC:high cloud
-TCDC:convective cloud layer
-CWORK:entire atmosphere
-TCDC:entire atmosphere
-DSWRF:top of atmosphere
-ULWRF:top of atmosphere
-USWRF:top of atmosphere
-ALBDO:surface
-CDUVB:surface
-CFRZR:surface
-CICEP:surface
-CPRAT:surface
-CRAIN:surface
-CSNOW:surface
-DLWRF:surface
-DSWRF:surface
-DUVB:surface
-GFLUX:surface
-LHTFL:surface
-PEVPR:surface
-PRATE:surface
-SHTFL:surface
-U-GWD:surface
-ULWRF:surface
-USWRF:surface
-V-GWD:surface
+TMAX
+TMIN
+ACPCP
+APCP
+TMP.*high cld
+TMP.*low cld
+TMP.*mid cld
+PRES.*cld
+TCDC
+CWORK
+DSWRF
+ULWRF
+ALBDO
+CFRZR
+CICEP
+CPRAT
+CRAIN
+CSNOW
+DLWRF
+DUVB
+GFLUX
+LHTFL
+PEVPR
+PRATE
+SHTFL
+U-GWD
+V-GWD
