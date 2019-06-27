@@ -13,15 +13,8 @@ def copyVariable(infile, outfile, var_name):
     varname (str) : Name of variable to copy
     """
 
-    # If str, assume they're filenames
-    if type(infile) is str and type(outfile) is str:
-        f1 = Dataset(infile)
-        f2 = Dataset(outfile, 'a')
-    elif type(infile) is Dataset and type(outfile) is Dataset:
-        f1 = infile
-        f2 = outfile
-    else:
-        raise Exception("infile and outfile type not understood")
+    f1 = get_NC_filehandle(infile)
+    f2 = get_NC_filehandle(outfile, mode='a')
     var = f1[var_name]
 
     new_var = f2.createVariable(var.name, var.dtype, var.dimensions)
@@ -31,11 +24,36 @@ def copyVariable(infile, outfile, var_name):
         new_var.setncattr(key, value)
     new_var[:] = var[:]
 
-def copyDimensions():
-    pass
+def copyDimensions(infile, outfile, ignore=[]):
+    f1 = get_NC_filehandle(infile)
+    f2 = get_NC_filehandle(outfile, mode='a')
+    for dim_name in f1.dimensions:
+        if dim_name not in ignore:
+            dim_size = f1.dimensions[dim_name].size
+            f2.createDimension(dim_name, dim_size)
+    return f2
 
-def copyGlobalAttrs():
-    pass
+
+def copyGlobalAttrs(infile, outfile, ignore=[]):
+    """Copies global attributes from one file/filehandle to another."""
+    f1 = get_NC_filehandle(infile)
+    f2 = get_NC_filehandle(outfile, mode='a')
+    for global_key in f1.ncattrs():
+        if global_key not in ignore:
+            f2.setncattr(global_key, f1.getncattr(global_key))
+    return f2
+
+def get_NC_filehandle(filename, mode='r'):
+    """Returns filehandle give a filehandle or filename str.
+
+    Optionally, can provide mode to open with
+    """
+    # If str, assume they're filenames
+    if type(filename) is str:
+        return Dataset(infile, mode)
+    elif type(filename) is Dataset:
+        return filename
+    raise Exception("filename type not understood")
 
 
 if __name__ == "__main__":
