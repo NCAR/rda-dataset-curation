@@ -35,8 +35,8 @@ separateWgribLevels()
     echo "levels are"
     echo "$levels"
     # change outfile depending on the level--is a regex
-    grepLevels=(":2 m above" "sfc" "10 m above"    "12 m above|[2-9]0 m above|[1-9]00 m above" "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'        'MSL' 'atmos col' 'convect-cld'       'nom. top' 'bndary-layer' 'low cld lay' 'low cld top' 'low cld bot' 'middle cld lay' 'middle cld top' 'middle cld bot' 'high cld lay' 'high cld top' 'high cld bot' '300K|350K|330K')
-    grepLevelsName=("2m"     "sfc" "10m"           "height"                                    "depth"    "sigma" "isotherm" "tropopause" "pres" 'isentrope' 'msl' 'atmos-col' 'convective-cld'    'nom-top'  'boundary-layer' 'low-cld' 'low-cld-top' 'low-cld-bot'  'mid-cld' 'mid-cld-top' 'mid-cld-bot'      'high-cld' 'high-cld-top' 'high-cld-bot' 'isentrope')
+    grepLevels=(":2 m above" "sfc" "10 m above"    "12 m above|[2-9]0 m above|[1-9]00 m above" "cm down"  "sigma" "isotherm" "tropopause" "mb:"  'K$'        'MSL' 'atmos col' 'convect-cld top' 'convect-cld lay'   'convect-cld bot'    'nom. top' 'bndary-layer' 'low cld lay' 'low cld top' 'low cld bot' 'mid cld lay' 'mid cld top' 'mid cld bot' 'high cld lay' 'high cld top' 'high cld bot' '300K|350K|330K' 'hybrid lev')
+    grepLevelsName=("2m"     "sfc" "10m"           "height"                                    "depth"    "sigma" "isotherm" "tropopause" "pres" 'isentrope' 'msl' 'atmos-col' 'convective-cld-top'  'convective-cld' 'convective-cld-bot'  'nom-top'  'boundary-layer' 'low-cld' 'low-cld-top' 'low-cld-bot'  'mid-cld' 'mid-cld-top' 'mid-cld-bot'      'high-cld' 'high-cld-top' 'high-cld-bot' 'isentrope' 'hybrid')
     levels_len=${#grepLevels[@]}
     echo "len $levels_len"
     totLines=0
@@ -61,10 +61,10 @@ separateWgribLevels()
             rm $inventory
             break;
         fi
-    echo $totLines
-    echo $totInv
     if [[ $totLines -ne $totInv ]]; then
         echo "off"
+        echo "total lines counted: $totLines"
+        echo "total lines in inv : $totInv"
         exit 1
     fi
 }

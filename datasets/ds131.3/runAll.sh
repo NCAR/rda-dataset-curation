@@ -34,18 +34,20 @@ for file in $filelist; do
     if [[ $year -ge $from && $year -le $to ]]; then
         echo "Executing $year"
 
-        ./separateByYear.sh $year
-        sbatch -J "${year}_mean" -o logs/${year}_mean.out -e logs/${year}_mean.out slurm_job.tcsh $file 'mean'
-        sleep 5
-#        sbatch -J "${year}_sprd" -o logs/${year}_spread.out -e logs/${year}_spread.out slurm_job.tcsh $file 'spread'
-        sleep 5
-        sbatch -J "${year}_mean_fg" -o logs/${year}_mean_fg.out -e logs/${year}_mean_fg.out slurm_job.tcsh $file 'meanfg'
-#        sleep 5
-#        sbatch -J "${year}_spread_fg" -o logs/${year}_spread_fg.out -e logs/${year}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
-#        sleep 5
-        sbatch -J "${year}_obs" -o logs/${year}_obs.out -e logs/${year}_obs.out slurm_job.tcsh $file 'obs'
-        sleep 5
-        sbatch -J "${year}_sflx" -o logs/${year}_sflx.out -e logs/${year}_sflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'sflx'
-#
+        #./separateByYear.sh $year
+        #sbatch -J "${year}_mean" -o logs/${year}_mean.out -e logs/${year}_mean.out slurm_job.tcsh $file 'mean'
+        #sleep 5
+        sbatch -J "${year}_sprd" -o logs/${year}_spread.out -e logs/${year}_spread.out slurm_job.tcsh $file 'spread'
+      #  sleep 5
+      #  sbatch -J "${year}_mean_fg" -o logs/${year}_mean_fg.out -e logs/${year}_mean_fg.out slurm_job.tcsh $file 'meanfg'
+      #  sleep 5
+      #  sbatch -J "${year}_spread_fg" -o logs/${year}_spread_fg.out -e logs/${year}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
+      #  sleep 5
+      #  sbatch -J "${year}_obs" -o logs/${year}_obs.out -e logs/${year}_obs.out slurm_job.tcsh $file 'obs'
+      #  sleep 5
+      # sbatch -J "${year}_meansflx" -o logs/${year}_meansflx.out -e logs/${year}_meansflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'meansflx'
+      #  sleep 5
+      # sbatch -J "${year}_sprdsflx" -o logs/${year}_sprdsflx.out -e logs/${year}_sprdsflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'sprdsflx'
+
     fi
 done

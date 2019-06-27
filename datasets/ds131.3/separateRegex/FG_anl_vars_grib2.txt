@@ -40,3 +40,4 @@ U-GWD:surface
 ULWRF:surface
 USWRF:surface
 V-GWD:surface
+WATR

@@ -15,7 +15,7 @@ root_dir='/gpfs/fs1/collections/rda/transfer/20CRv3/20CRv3si'
 
 mkdir $working_dir/$year 2>/dev/null
 
-## Create FG tmp dir
+# Create FG tmp dir
 out_dir="$working_dir/$year/tmp_FG"
 mkdir $out_dir
 in_dir=`find ${root_dir}/ensda_451/ -maxdepth 2 -mindepth 2 | grep "${year}$"`
