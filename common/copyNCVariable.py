@@ -7,9 +7,21 @@ def copyVariable(infile, outfile, var_name):
     """Copies variable from infile to outfile.
 
     This assumes (for now) that dimensions of source variable
-    are defined and match the destination file."""
-    f1 = Dataset(infile)
-    f2 = Dataset(outfile, 'a')
+    are defined and match the destination file.
+    infile (str or Dataset) : Name of file/filehandle to copy from.
+    outfile (str or Dataset) : Name of file/filehandle to copy to.
+    varname (str) : Name of variable to copy
+    """
+
+    # If str, assume they're filenames
+    if type(infile) is str and type(outfile) is str:
+        f1 = Dataset(infile)
+        f2 = Dataset(outfile, 'a')
+    elif type(infile) is Dataset and type(outfile) is Dataset:
+        f1 = infile
+        f2 = outfile
+    else:
+        raise Exception("infile and outfile type not understood")
     var = f1[var_name]
 
     new_var = f2.createVariable(var.name, var.dtype, var.dimensions)
@@ -19,6 +31,11 @@ def copyVariable(infile, outfile, var_name):
         new_var.setncattr(key, value)
     new_var[:] = var[:]
 
+def copyDimensions():
+    pass
+
+def copyGlobalAttrs():
+    pass
 
 
 if __name__ == "__main__":
