@@ -50,7 +50,7 @@ def get_NC_filehandle(filename, mode='r'):
     """
     # If str, assume they're filenames
     if type(filename) is str:
-        return Dataset(infile, mode)
+        return Dataset(filename, mode)
     elif type(filename) is Dataset:
         return filename
     raise Exception("filename type not understood")

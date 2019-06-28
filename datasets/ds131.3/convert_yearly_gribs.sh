@@ -1,5 +1,21 @@
 #!/bin/bash
 
+######################################################
+# convert_yearly_gribs [in_dir] [out_dir] [file_type]
+#
+# in_dir - a parent directory to all files of needed file_type,
+# out_dir - location to create directory structure and place output files
+# file_type - 'spread', 'mean', 'obs', 'meanfg', 'sprdfg', 'meansflx' or 'sprdsflx'
+#             This is the type of file that has special processing depending on type
+#
+# This program first separates by like parameter, separates into similar levels,
+# converts to grib2, and finally converts to netCDF4 with custom metadata.
+#
+
+###################################################
+# usage
+# Displays usage, then exits
+#
 usage()
 {
     echo "Usage:"
@@ -7,16 +23,28 @@ usage()
     echo "in_dir"
     exit 1
 }
+###################################################
+# check_invariant [filename]
+# Checks if filename argument contains string that
+# indicates it's an invariant.
+#
 check_invariant()
 {
+    # PRES_convective not an invariant, but shouldn't be in input files.
+    # SUNSD is only in sflx spread files and doesn't make sense in there
     local filename=$1
-    echo $filename | egrep "LAND|HGT_sfc"
+    echo $filename | egrep "LAND|HGT_sfc|PRES_convective"
     rc=$?
     if [[ $rc -eq 0 ]]; then
         return 5
     fi
     return 0
 }
+###################################################
+# convert_g1_to_g2 [infile] [outfile]
+# Wrapper of convertG12.sh to convert grib1 file to
+# grib2 file
+#
 convert_g1_to_g2()
 {
     echo "Done converting grib1 to grib2"
@@ -25,6 +53,13 @@ convert_g1_to_g2()
     $common_dir/convertG12.sh $g1infile $g2outfile
     echo "Done converting grib1 to grib2"
 }
+###################################################
+# convert_cfgrib [infile] [outfile]
+# If possible, converts grib1 to grib2 (needed since
+# cfgrib doesn't respond as well to grib1),
+# then calls cfgrib to convert file.
+# Additionally, adds 131.3 specific DOI and provenance.
+#
 convert_cfgrib()
 {
     infile=$1
@@ -50,6 +85,11 @@ convert_cfgrib()
     $common_dir/add_nc_global.py $outfile 'RDA-Curation-Repo' 'https://github.com/NCAR/rda-dataset-curation/tree/master/datasets/ds131.3'
 
 }
+
+###################################################
+# convert_ncl [infile] [outfile]
+# Uses ncl to convert to netcdf.
+#
 convert_ncl()
 {
     infile=$1
@@ -292,6 +332,13 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
     for fgFile in $fgDir/*sprd*; do
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
+
+        check_invariant $fgFile
+        rc=$?
+        if [[ $rc -eq 5 ]]; then # If it's an invariant
+            continue
+        fi
+
         filename=`echo $fgFile | sed "s/pgrbenssprd/fg_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
@@ -308,8 +355,8 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         echo "Adding land"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $fgDir/*sprdfg*.idx
-    rm $fgDir/*sprdfg*grb*
+    rm $fgDir/*sprd*.idx
+    rm $fgDir/*sprd*grb*
 fi
 ######################
 ## Mean First Guess ##
@@ -535,7 +582,7 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
-    rm $sflxDir/*psrd*.grb
+    rm $sflxDir/*sprd*grb*
     rm $sflxDir/*sprd*.idx
     rm $tmp_SFLX/*sprdfg*
 fi
