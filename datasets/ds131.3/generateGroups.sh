@@ -5,8 +5,8 @@ printDelimiter()
 }
 count=111; # Some starting index
 # First Anl
-for filename in `ls -1 1836/anl/*.nc`; do
-    i=`echo $filename | awk -F'1836_' '{print $2}' | sed 's/\.nc//'`
+for filename in `ls -1 1837/anl/*mean*.nc`; do
+    i=`echo $filename | awk -F'1837_' '{print $2}' | sed 's/\.nc//'`
     printf "${count}"
     printDelimiter
     printf 'TS_AN-'
@@ -15,11 +15,11 @@ for filename in `ls -1 1836/anl/*.nc`; do
     printf '1' # 1 for the analysis group
     printDelimiter
     # Get longname
-    long_name=`ncdump -h $filename | grep long_name | tail -1 | grep -o "\".*\"" | sed 's/"//g'`
-    level=`ncdump -h $filename | grep typeOfLevel | tail -1 | grep -o "\".*\"" | sed 's/"//g'`
+    long_name=`ncdump -h $filename | grep long_name | tail -2 | head -1 | grep -o "\".*\"" | sed 's/"//g'`
+    level=`ncdump -h $filename | grep typeOfLevel | tail -2 | head -1 | grep -o "\".*\"" | sed 's/"//g'`
     printf "$long_name ($level)"
     printDelimiter
-    printf '*'
+    printf 'anl*'
     printf "${i}.nc"
     printDelimiter
     printDelimiter
@@ -29,21 +29,45 @@ for filename in `ls -1 1836/anl/*.nc`; do
 done
 # Then FG
 count=$(( count + 50 ))
-for filename in `ls -1 1836/fg/*.nc`; do
-    i=`echo $filename | awk -F'fhr06_' '{print $2}' | sed 's/\.nc//'`
+for filename in `ls -1 1837/fg/*mean*.nc`; do
+    i=`echo $filename | awk -F'1837_' '{print $2}' | sed 's/\.nc//'`
     printf "${count}"
     printDelimiter
     printf 'TS_FG-'
     printf $i
     printDelimiter
-    printf '1' # 1 for the analysis group
+    printf '2' # 1 for the first guess
     printDelimiter
     # here would go the description
-    long_name=`ncdump -h $filename | grep long_name | tail -1 | grep -o "\".*\"" | sed 's/"//g'`
-    level=`ncdump -h $filename | grep typeOfLevel | tail -1 | grep -o "\".*\"" | sed 's/"//g'`
+    long_name=`ncdump -h $filename | grep long_name | tail -2 | head -1 | grep -o "\".*\"" | sed 's/"//g'`
+    level=`ncdump -h $filename | grep typeOfLevel | tail -2 | head -1 | grep -o "\".*\"" | sed 's/"//g'`
     printf "$long_name ($level)"
     printDelimiter
-    printf '*'
+    printf 'fg*'
+    printf "${i}.nc"
+    printDelimiter
+    printDelimiter
+    printDelimiter
+    count=$(( $count + 1 ))
+    echo
+done
+# Then SFLX
+count=$(( count + 50 ))
+for filename in `ls -1 1837/sflx/*mean*.nc`; do
+    i=`echo $filename | awk -F'1837_' '{print $2}' | sed 's/\.nc//'`
+    printf "${count}"
+    printDelimiter
+    printf 'TS_SFLX-'
+    printf $i
+    printDelimiter
+    printf '3' # 1 for the sflx group
+    printDelimiter
+    # here would go the description
+    long_name=`ncdump -h $filename | grep long_name | tail -2 | head -1| grep -o "\".*\"" | sed 's/"//g'`
+    level=`ncdump -h $filename | grep typeOfLevel | tail -2 | head -1 | grep -o "\".*\"" | sed 's/"//g'`
+    printf "$long_name ($level)"
+    printDelimiter
+    printf 'sflx*'
     printf "${i}.nc"
     printDelimiter
     printDelimiter

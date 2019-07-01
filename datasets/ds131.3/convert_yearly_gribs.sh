@@ -33,7 +33,7 @@ check_invariant()
     # PRES_convective not an invariant, but shouldn't be in input files.
     # SUNSD is only in sflx spread files and doesn't make sense in there
     local filename=$1
-    echo $filename | egrep "LAND|HGT_sfc|PRES_convective"
+    echo $filename | egrep "LAND|HGT_sfc|PRES_convective|SUNSD"
     rc=$?
     if [[ $rc -eq 0 ]]; then
         return 5
@@ -435,7 +435,7 @@ if [[ -z $file_type || $file_type == 'obs' ]]; then
 
     cd $obsDir; tar -cvzf psobs_$year.tgz *; cd -
     rm $obsDir/${year}*
-    #dsarch -DS ds131.3 -AM -NO -NB -GN PREPOBS -DF ASCII -FF TAR.GZ -LF psobs_$year.tgz -MF psobs_$year.tgz
+    dsarch -DS ds131.3 -AM -NO -NB -GN PREPOBS -DF ASCII -FF TAR.GZ -LF psobs_$year.tgz -MF psobs_$year.tgz
 fi
 ##############
 ## SFLX MEAN #
