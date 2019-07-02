@@ -317,6 +317,19 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
             exit 1
         fi
     done
+    # Do SFLX spread
+    for fgFile in `find $tmp_SFLX | grep 'sprd_fgonly' | sort`; do
+        echo "Starting fg processing"
+        $subsetParamExe $fgFile -o $fgDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $fgFile"
+            exit 1
+        fi
+    done
+
+
+
     echo "Completed subsetParam on fg"
     for fgFile in $fgDir/*sprd*; do
         $subsetLevelExe $fgFile -o $fgDir
@@ -363,17 +376,18 @@ fi
 ######################
 if [[ -z $file_type || $file_type == 'meanfg' ]]; then
     # First guess mean - finds all mean first guess files and subsets by param
-   # for fgFile in `find $in_dir | grep 'meanfg' | sort`; do
-   #     echo "Starting fg processing"
-   #     $subsetParamExe $fgFile -o $fgDir
-   #     rc=$?
-   #     if [[ $rc -ne 0 ]]; then
-   #         >&2 echo "subsetParam Failed on $fgFile"
-   #         exit 1
-   #     fi
-   # done
     echo "Starting fg processing"
     for fgFile in `find $tmp_FG | grep 'mean_fgonly' | sort`; do
+        $subsetParamExe $fgFile -o $fgDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $fgFile"
+            exit 1
+        fi
+    done
+   # Do SFLX
+    echo "Starting fg processing"
+    for fgFile in `find $tmp_SFLX | grep 'mean_fgonly' | sort`; do
         $subsetParamExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -443,7 +457,7 @@ fi
 if [[ -z $file_type || $file_type == 'meansflx' ]]; then
     echo "Surface flux"
     echo "Starting fg processing"
-    for sflxFile in `find $tmp_SFLX | grep 'mean_fgonly' | sort`; do
+    for sflxFile in `find $tmp_SFLX/instant3hr | grep 'mean' | sort`; do
         $subsetParamExe $sflxFile -o $sflxDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -517,7 +531,7 @@ fi
 if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
     echo "Surface flux"
     echo "Starting fg processing"
-    for sflxFile in `find $tmp_SFLX | grep 'sprd_fgonly' | sort`; do
+    for sflxFile in `find $tmp_SFLX/instant3hr | grep 'sprd' | sort`; do
         $subsetParamExe $sflxFile -o $sflxDir
         rc=$?
         if [[ $rc -ne 0 ]]; then

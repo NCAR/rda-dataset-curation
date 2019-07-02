@@ -34,7 +34,7 @@ for file in $filelist; do
     if [[ $year -ge $from && $year -le $to ]]; then
         echo "Executing $year"
 
-        ./separateByYear.sh $year
+       # ./separateByYear.sh $year
         sbatch -J "${year}_mean" -o logs/${year}_mean.out -e logs/${year}_mean.out slurm_job.tcsh $file 'mean'
         sleep 5
         sbatch -J "${year}_sprd" -o logs/${year}_spread.out -e logs/${year}_spread.out slurm_job.tcsh $file 'spread'

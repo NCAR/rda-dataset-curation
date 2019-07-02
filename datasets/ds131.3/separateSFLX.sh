@@ -42,4 +42,6 @@ for sflxFile in `find $out_dir | grep 'sflxgrbensmeanfg' | sort`; do
     echo "./separate.sh $regexDir/SFLX_anl_vars_grib2.txt $sflxFile $outdir/$newFilename $outdir/$remFilename"
     ./separate.sh $regexDir/SFLX_anl_vars_grib2.txt $sflxFile $out_dir/$newFilename $out_dir/$remFilename
 done
+mkdir $out_dir/instant3hr
+mv $out_dir/*fgonly*fhr03* $out_dir/instant3hr
 

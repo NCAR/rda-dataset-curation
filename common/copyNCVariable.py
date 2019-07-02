@@ -3,7 +3,7 @@ import sys
 import argparse
 from netCDF4 import Dataset
 
-def copyVariable(infile, outfile, var_name):
+def copy_variable(infile, outfile, var_name):
     """Copies variable from infile to outfile.
 
     This assumes (for now) that dimensions of source variable
@@ -19,12 +19,19 @@ def copyVariable(infile, outfile, var_name):
 
     new_var = f2.createVariable(var.name, var.dtype, var.dimensions)
     # Add attributes
-    for key in var.ncattrs():
-        value = var.getncattr(key)
-        new_var.setncattr(key, value)
+    copy_var_attrs(var, new_var)
     new_var[:] = var[:]
 
-def copyDimensions(infile, outfile, ignore=[]):
+def copy_var_attrs(invar, outvar):
+    """Copies attributes from one variable to another"""
+    for key in invar.ncattrs():
+        value = invar.getncattr(key)
+        outvar.setncattr(key, value)
+    return outvar
+
+def copy_dimensions(infile, outfile, ignore=[]):
+    if type(ignore) is not list:
+        ignore = [ignore]
     f1 = get_NC_filehandle(infile)
     f2 = get_NC_filehandle(outfile, mode='a')
     for dim_name in f1.dimensions:
@@ -34,7 +41,7 @@ def copyDimensions(infile, outfile, ignore=[]):
     return f2
 
 
-def copyGlobalAttrs(infile, outfile, ignore=[]):
+def copy_global_attrs(infile, outfile, ignore=[]):
     """Copies global attributes from one file/filehandle to another."""
     f1 = get_NC_filehandle(infile)
     f2 = get_NC_filehandle(outfile, mode='a')
@@ -66,4 +73,4 @@ if __name__ == "__main__":
         args = parser.parse_args(['-h'])
         exit(1)
     args = parser.parse_args()
-    copyVariable(args.sourceFile, args.destFile, args.varname)
+    copy_variable(args.sourceFile, args.destFile, args.varname)
