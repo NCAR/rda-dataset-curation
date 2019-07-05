@@ -21,6 +21,7 @@ def copy_variable(infile, outfile, var_name):
     # Add attributes
     copy_var_attrs(var, new_var)
     new_var[:] = var[:]
+    return new_var
 
 def copy_var_attrs(invar, outvar):
     """Copies attributes from one variable to another"""

@@ -146,6 +146,7 @@ common_dir="../../common/"
 subsetParamExe="$common_dir/subsetGrib.sh"
 subsetLevelExe="$common_dir/subsetGribByLevel.sh"
 isGrib1="$common_dir/isGrib1.py"
+removeDim="$common_dir/removeDimension.py"
 
 #####################
 ## Spread Analysis ##
@@ -209,6 +210,7 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         >&2 echo "converting $anlFile to netcdf"
         #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
+        $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -290,6 +292,7 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         >&2 echo "converting $anlFile to netcdf"
         #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
+        $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -506,10 +509,11 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
             continue
         fi
 
-        filename=`echo $sflxFile | sed "s/grbensmean/sflx_mean_$year/" | sed 's/grb.*$/nc/'`
+        filename=`echo $sflxFile | sed "s/pgrbensmean/sflx_mean_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
+        $removeDim $filename 'step'
         #rm $fgFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -580,10 +584,11 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
             continue
         fi
 
-        filename=`echo $sflxFile | sed "s/grbenssprd/sflx_spread_$year/" | sed 's/grb.*$/nc/'`
+        filename=`echo $sflxFile | sed "s/pgrbenssprd/sflx_spread_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
+        $removeDim $filename 'step'
         #rm $fgFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
