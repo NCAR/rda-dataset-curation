@@ -1,0 +1,16 @@
+ACOND
+CPOFP
+FLDCP
+FRICV
+SFCR
+SFEXC
+SOILM
+SOTYP
+SLTYP
+SPFH.*hybrid
+VEG
+VGTYP
+WILT
+VGRD.*hybrid
+TMP.*hybrid
+UGRD.*hybrid

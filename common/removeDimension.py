@@ -134,7 +134,7 @@ if __name__ == '__main__':
         usage()
     nc_file = sys.argv[1]
     dim_name = sys.argv[2]
-    nc = Dataset(nc_file, 'a')
+    nc = Dataset(nc_file)
     outfile = remove_dimension(nc, dim_name)
     os.rename(outfile, nc_file)
 

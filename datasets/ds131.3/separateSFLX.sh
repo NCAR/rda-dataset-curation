@@ -45,7 +45,6 @@ done
 for sflxFile in `find $out_dir | grep 'sflxgrbensmeanfg' | sort`; do
     newFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/pgrbensmeananl/'`
     newFilename=`basename $newFilename`
-    #remFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/pgrbensmean_fgonly/'`
     remFilename=`echo $sflxFile | sed 's/sflxgrbensmeanfg/pgrbensmean_allother/'`
     remFilename=`basename $remFilename`
     echo "./separate.sh $regexDir/SFLX_anl_vars_grib2.txt $sflxFile $outdir/$newFilename $outdir/$remFilename"
