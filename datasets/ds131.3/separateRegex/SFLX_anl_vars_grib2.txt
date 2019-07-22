@@ -9,8 +9,6 @@ EVCW:surface
 HGT:1 hybrid
 NBDSF:surface
 NDDSF:surface
-QMAX:2 m
-QMIN:2 m
 SBSNO:surface
 SNOHF:surface
 SNOWC:surface

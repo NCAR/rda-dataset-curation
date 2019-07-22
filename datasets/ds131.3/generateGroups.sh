@@ -5,8 +5,8 @@ printDelimiter()
 }
 count=111; # Some starting index
 # First Anl
-for filename in `ls -1 1837/anl/*mean*.nc`; do
-    i=`echo $filename | awk -F'1837_' '{print $2}' | sed 's/\.nc//'`
+for filename in `ls -1 1836/anl/*mean*.nc`; do
+    i=`echo $filename | awk -F'1836_' '{print $2}' | sed 's/\.nc//'`
     printf "${count}"
     printDelimiter
     printf 'TS_AN-'
@@ -29,8 +29,8 @@ for filename in `ls -1 1837/anl/*mean*.nc`; do
 done
 # Then FG
 count=$(( count + 50 ))
-for filename in `ls -1 1837/fg/*mean*.nc`; do
-    i=`echo $filename | awk -F'1837_' '{print $2}' | sed 's/\.nc//'`
+for filename in `ls -1 1836/fg/*mean*.nc`; do
+    i=`echo $filename | awk -F'1836_' '{print $2}' | sed 's/\.nc//'`
     printf "${count}"
     printDelimiter
     printf 'TS_FG-'
@@ -53,11 +53,11 @@ for filename in `ls -1 1837/fg/*mean*.nc`; do
 done
 # Then SFLX
 count=$(( count + 50 ))
-for filename in `ls -1 1837/sflx/*mean*.nc`; do
-    i=`echo $filename | awk -F'1837_' '{print $2}' | sed 's/\.nc//'`
+for filename in `ls -1 1836/sflx/*mean*.nc`; do
+    i=`echo $filename | awk -F'1836_' '{print $2}' | sed 's/\.nc//'`
     printf "${count}"
     printDelimiter
-    printf 'TS_SFLX-'
+    printf 'TS_SFLX_AN-'
     printf $i
     printDelimiter
     printf '3' # 1 for the sflx group

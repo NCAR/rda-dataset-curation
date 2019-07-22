@@ -23,8 +23,8 @@ for file in $year/sflx/*.nc; do
     bn=`basename $file`
     groupname=`echo $bn | awk -F"${year}_" '{print $2}' | sed 's/\.nc//'`
 
-    echo "dsarch -DS ds131.3 -AW -GX -OE -GN TS_SFLX-$groupname -DF hdf5nc4 -LF $file"
-    dsarch -DS ds131.3 -AW -GX -OE -GN TS_SFLX-$groupname -DF hdf5nc4 -LF $file
+    echo "dsarch -DS ds131.3 -AW -GX -OE -GN TS_SFLX_AN-$groupname -DF hdf5nc4 -LF $file"
+    dsarch -DS ds131.3 -AW -GX -OE -GN TS_SFLX_AN-$groupname -DF hdf5nc4 -LF $file
 done
 # Analysis
 for file in $year/anl/*.nc; do
@@ -32,5 +32,6 @@ for file in $year/anl/*.nc; do
     groupname=`echo $bn | awk -F"${year}_" '{print $2}' | sed 's/\.nc//'`
 
     echo "dsarch -DS ds131.3 -AW -GX -OE -GN TS_AN-$groupname -DF hdf5nc4 -LF $file"
+    dsarch -DS ds131.3 -AW -GX -OE -GN TS_AN-$groupname -DF hdf5nc4 -LF $file
 done
 #dsarch -DS ds131.3 -AW -GX -OE -GN TS_SFLX-TMP_2m -DF hdf5nc4 -LF 1837/sflx/sflx_mean_1837_TMP_2m.nc
