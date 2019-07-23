@@ -40,6 +40,67 @@ def check_if_reduce_needed(vars_to_modify):
             return True
     return False
 
+def add_time_bounds(nc, varname):
+    """
+    Adds a time bounds variable to variable.
+    Assumes time dimension is called 'time'
+    """
+    THREE_HOURS = 60*60*3 # in seconds
+    bnds_name = 'time_bnds'
+    bounds_dim = 'nv'
+
+    # Create bounds dimension
+    nc.createDimension(bounds_dim, 2)
+
+    # Get variable matching varname
+    var = nc.variables[varname]
+    var.setncattr('bounds', bnds_name)
+
+    time_var = nc.variables['time']
+    time_data = time_var[:]
+    time_length = len(time_data)
+
+    # reshape time data
+    bounds_data = np.dstack((time_data,time_data)).reshape(time_length,2)
+    for i in bounds_data:
+        i[0] = i[0] - (THREE_HOURS)
+    bounds_var = nc.createVariable(bnds_name, time_var.dtype, ('time', bounds_dim))
+    bounds_var[:] = bounds_data
+
+
+
+def add_cell_methods(nc):
+    methods = {
+            'avg' : 'mean',
+            'accum' : 'sum',
+            'min' : 'minimum',
+            'max' : 'maximum'
+            }
+    step_str = 'GRIB_stepType'
+    for i in nc.variables:
+        var = nc.variables[i]
+        if step_str in var.ncattrs() and var.getncattr(step_str) is not 'instant':
+            if 'cell_methods' in var.ncattrs():
+                cur_str = var.getncattr('cell_methods')
+                var.setncattr('cell_methods', cur_str + " time: " + methods[var.getncattr(step_str)])
+            else:
+                var.setncattr('cell_methods', "time: " + methods[var.getncattr(step_str)])
+
+
+def change_coordinates(nc):
+    for i in nc.variables:
+        var = nc.variables[i]
+        if 'coordinates' in var.ncattrs():
+            coord_str = var.getncattr('coordinates')
+            coord_str = coord_str.replace('valid_time', '')
+            coord_str = coord_str.replace('step', '')
+            if 'time' not in coord_str:
+                coord_str += " time"
+            coord_str = ' '.join(coord_str.split())
+            var.setncattr('coordinates', coord_str)
+
+
+
 def remove_dimension(nc, dim_name, outfile=None):
 
     vars_to_modify = find_variables_with_dimension(nc, dim_name)
@@ -75,6 +136,8 @@ def remove_dimension(nc, dim_name, outfile=None):
         new_var = tmp_nc.createVariable('time', valid_var.dtype, ('time',))
         copync.copy_var_attrs(valid_var, new_var)
         new_var[:] = valid_var[:]
+        add_cell_methods(tmp_nc)
+        change_coordinates(tmp_nc)
         tmp_nc.close()
         return outfile
     # Next, copy unchanged vars
@@ -122,8 +185,13 @@ def remove_dimension(nc, dim_name, outfile=None):
             new_var = tmp_nc.createVariable(varname, var.dtype, dims)
             copync.copy_var_attrs(var, new_var)
             new_var[:] = new_data
+            step_str = 'GRIB_stepType'
+            if step_str in new_var.ncattrs() and new_var.getncattr(step_str) is not 'instant':
+                add_time_bounds(tmp_nc, new_var.name)
 
 
+    add_cell_methods(tmp_nc)
+    change_coordinates(tmp_nc)
     tmp_nc.close()
     return outfile
 

@@ -148,6 +148,9 @@ subsetLevelExe="$common_dir/subsetGribByLevel.sh"
 isGrib1="$common_dir/isGrib1.py"
 removeDim="$common_dir/removeDimension.py"
 
+# Config
+rmIntermediate='true' # comment out if not needed
+
 #####################
 ## Spread Analysis ##
 #####################
@@ -222,8 +225,10 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         echo "Adding LSM"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $anlDir/*sprdanl*grb*
-    rm $anlDir/*sprd*.idx
+    if [[ -z $rmIntermediate ]]; then
+        rm $anlDir/*sprdanl*grb*
+        rm $anlDir/*sprd*.idx
+    fi
 fi
 ###################
 ## Mean Analysis ##
@@ -290,7 +295,6 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
-        #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
         $removeDim $filename 'step'
         #rm $anlFile
@@ -303,8 +307,10 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo "Adding LSM"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $anlDir/*meananl*grb*
-    rm $anlDir/*meananl*.idx
+    if [[ -z $rmIntermediate ]]; then
+        rm $anlDir/*meananl*grb*
+        rm $anlDir/*meananl*.idx
+    fi
 fi
 ########################
 ## Spread First Guess ##
@@ -371,8 +377,11 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         echo "Adding land"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $fgDir/*sprd*.idx
-    rm $fgDir/*sprd*grb*
+
+    if [[ -z $rmIntermediate ]]; then
+        rm $fgDir/*sprd*.idx
+        rm $fgDir/*sprd*grb*
+    fi
 fi
 ######################
 ## Mean First Guess ##
@@ -437,9 +446,11 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         echo "Adding LSM"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $fgDir/*mean*.idx
-    rm $fgDir/*mean*grb*
-    rm $tmp_FG/*meananl*
+    if [[ -z $rmIntermediate ]]; then
+        rm $fgDir/*mean*.idx
+        rm $fgDir/*mean*grb*
+        rm $tmp_FG/*meananl*
+    fi
 fi
 #######################
 ## Observation Files ##
@@ -525,9 +536,12 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
-    rm $sflxDir/*mean*.grb
-    rm $sflxDir/*mean*.idx
-    rm $tmp_SFLX/*meananl*
+
+    if [[ -z $rmIntermediate ]]; then
+        rm $sflxDir/*mean*.grb
+        rm $sflxDir/*mean*.idx
+        rm $tmp_SFLX/*meananl*
+    fi
 fi
 ##############
 ## SFLX SPRD #
@@ -601,7 +615,9 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
-    rm $sflxDir/*sprd*grb*
-    rm $sflxDir/*sprd*.idx
-    rm $tmp_SFLX/*sprdfg*
+    if [[ -z $rmIntermediate ]]; then
+        rm $sflxDir/*sprd*grb*
+        rm $sflxDir/*sprd*.idx
+        rm $tmp_SFLX/*sprdfg*
+    fi
 fi

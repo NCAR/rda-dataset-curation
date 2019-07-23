@@ -3,7 +3,7 @@ import sys
 import argparse
 from netCDF4 import Dataset
 
-def copy_variable(infile, outfile, var_name):
+def copy_variable(infile, outfile, var_name, new_varname=None):
     """Copies variable from infile to outfile.
 
     This assumes (for now) that dimensions of source variable
@@ -12,12 +12,14 @@ def copy_variable(infile, outfile, var_name):
     outfile (str or Dataset) : Name of file/filehandle to copy to.
     varname (str) : Name of variable to copy
     """
+    if new_varname is None:
+        new_varname = var_name
 
     f1 = get_NC_filehandle(infile)
     f2 = get_NC_filehandle(outfile, mode='a')
     var = f1[var_name]
 
-    new_var = f2.createVariable(var.name, var.dtype, var.dimensions)
+    new_var = f2.createVariable(new_varname, var.dtype, var.dimensions)
     # Add attributes
     copy_var_attrs(var, new_var)
     new_var[:] = var[:]
