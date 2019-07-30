@@ -25,6 +25,12 @@ def copy_variable(infile, outfile, var_name, new_varname=None):
     new_var[:] = var[:]
     return new_var
 
+def copy_variables(infile, outfile, ignore=[]):
+    """Copies all variables from outfile to infile.
+    Optionally ignore varname
+    """
+    pass
+
 def copy_var_attrs(invar, outvar):
     """Copies attributes from one variable to another"""
     for key in invar.ncattrs():

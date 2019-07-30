@@ -5,6 +5,7 @@ import sys, os
 import random
 import pdb
 import numpy as np
+import datetime as dt
 
 #
 #
@@ -15,6 +16,31 @@ def usage():
     print("Usage")
     print("    "+sys.argv[0]+" [filename] [dim name]")
     exit(1)
+
+def change_fill_value(nc, var, former_fill_value=np.nan, fill_value=np.nan):
+    """Requires variable to be copied."""
+    if former_fill_value is np.nan
+        compare_func = np.isnan
+    else:
+        compare_func = lambda x: x == former_fill_value
+    new_data = var[np.where(compare_func(var[:]))] = fill_value
+
+
+def add_utc_date(nc, time_var):
+    """ Adds human readable date variable.
+    Assumes date is in seconds since epoch.
+    time_var is netCDF.Variable object.
+    """
+    # Create Variable
+    utc = nc.createVariable('utc_time', int, ('time'))
+    setattr(utc, 'long_name' "UTC date yyyy-mm-dd hh:00:00 as yyyymmddhh")
+    setattr(utc, "units","Gregorian_year month day hour")
+
+    toUTC = lambda d: int(datetime.datetime.fromtimestamp(d).strftime('%Y%m%d%H'))
+    vfunc = np.vectorize(toUTC)
+    utc_data = vfunc(t[:])
+    utc[:] = utc_data
+
 
 def find_variables_with_dimension(nc, dim_name):
     selected_vars = []
@@ -53,10 +79,9 @@ def add_time_bounds(nc, varname):
     nc.createDimension(bounds_dim, 2)
 
     # Get variable matching varname
-    var = nc.variables[varname]
-    var.setncattr('bounds', bnds_name)
 
     time_var = nc.variables['time']
+    tim_var.setncattr('bounds', bnds_name)
     time_data = time_var[:]
     time_length = len(time_data)
 
@@ -136,10 +161,7 @@ def remove_dimension(nc, dim_name, outfile=None):
         new_var = tmp_nc.createVariable('time', valid_var.dtype, ('time',))
         copync.copy_var_attrs(valid_var, new_var)
         new_var[:] = valid_var[:]
-        add_cell_methods(tmp_nc)
-        change_coordinates(tmp_nc)
-        tmp_nc.close()
-        return outfile
+        return (outfile, tmp_nc)
     # Next, copy unchanged vars
     time_var = None
     for var in vars_to_copy:
@@ -190,11 +212,7 @@ def remove_dimension(nc, dim_name, outfile=None):
                 add_time_bounds(tmp_nc, new_var.name)
 
 
-    add_cell_methods(tmp_nc)
-    change_coordinates(tmp_nc)
-    tmp_nc.close()
-    return outfile
-
+    return (outfile, tmp_nc)
 
 
 if __name__ == '__main__':
@@ -203,7 +221,11 @@ if __name__ == '__main__':
     nc_file = sys.argv[1]
     dim_name = sys.argv[2]
     nc = Dataset(nc_file)
-    outfile = remove_dimension(nc, dim_name)
+    outfile,nc = remove_dimension(nc, dim_name)
+    add_cell_methods(nc)
+    change_coordinates(nc)
+    add_utc_date(nc, nc.variables['time']):
+    nc.close()
     os.rename(outfile, nc_file)
 
 

@@ -213,6 +213,12 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         >&2 echo "converting $anlFile to netcdf"
         #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
         $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
@@ -296,6 +302,12 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
         convert_cfgrib $anlFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
         $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
@@ -366,6 +378,12 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
         #rm $fgFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -436,6 +454,12 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
         #rm $fgFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -520,7 +544,7 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
             continue
         fi
 
-        filename=`echo $sflxFile | sed "s/pgrbensmean/sflx_mean_$year/" | sed 's/grb.*$/nc/'`
+        filename=`echo $sflxFile | sed "s/pgrbensmean/anl_mean_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
@@ -598,7 +622,7 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
             continue
         fi
 
-        filename=`echo $sflxFile | sed "s/pgrbenssprd/sflx_spread_$year/" | sed 's/grb.*$/nc/'`
+        filename=`echo $sflxFile | sed "s/pgrbenssprd/anl_spread_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
