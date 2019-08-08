@@ -1,9 +1,12 @@
 #!/usr/bin/python
 import sys
+import os
+import pdb
 import argparse
 from netCDF4 import Dataset
+import numpy as np
 
-def copy_variable(infile, outfile, var_name, new_varname=None):
+def copy_variable(infile, outfile, var_name, new_varname=None, new_fill_value=None):
     """Copies variable from infile to outfile.
 
     This assumes (for now) that dimensions of source variable
@@ -19,26 +22,50 @@ def copy_variable(infile, outfile, var_name, new_varname=None):
     f2 = get_NC_filehandle(outfile, mode='a')
     var = f1[var_name]
 
-    new_var = f2.createVariable(new_varname, var.dtype, var.dimensions)
+    new_var = f2.createVariable(new_varname, var.dtype, var.dimensions, fill_value=new_fill_value)
     # Add attributes
-    copy_var_attrs(var, new_var)
-    new_var[:] = var[:]
+    if new_fill_value is not None:
+        copy_var_attrs(var, new_var, ignore=['_FillValue'])
+        new_var[:] = change_fill_value(var, 9999)
+    else:
+        copy_var_attrs(var, new_var)
+        new_var[:] = var[:]
     return new_var
 
-def copy_variables(infile, outfile, ignore=[]):
+def copy_variables(infile, outfile, ignore=[], new_fill_value=None):
     """Copies all variables from outfile to infile.
     Optionally ignore varname
     """
-    pass
+    f1 = get_NC_filehandle(infile)
+    f2 = get_NC_filehandle(outfile, mode='r+')
 
-def copy_var_attrs(invar, outvar):
+    for v in f1.variables:
+        if v not in ignore:
+            copy_variable(f1, f2, var_name, new_fill_value=new_fill_value)
+    return f2
+
+def change_fill_value(var, new_fill_value=np.nan):
+     """Requires variable to be copied."""
+     if np.isnan(var.getncattr('_FillValue')):
+         compare_func = np.isnan
+     else:
+         compare_func = lambda x: x == former_fill_value
+     new_data  = var[:]
+     new_data[np.where(compare_func(var[:]))] = new_fill_value
+     return new_data
+
+
+def copy_var_attrs(invar, outvar, ignore=[]):
     """Copies attributes from one variable to another"""
     for key in invar.ncattrs():
         value = invar.getncattr(key)
-        outvar.setncattr(key, value)
+        if key not in ignore:
+            outvar.setncattr(key, value)
     return outvar
 
 def copy_dimensions(infile, outfile, ignore=[]):
+    """ Given an infile and outfile, copy dimensions
+    """
     if type(ignore) is not list:
         ignore = [ignore]
     f1 = get_NC_filehandle(infile)
@@ -66,6 +93,8 @@ def get_NC_filehandle(filename, mode='r'):
     """
     # If str, assume they're filenames
     if type(filename) is str:
+        if not os.path.isfile(filename):
+            return Dataset(filename, 'w')
         return Dataset(filename, mode)
     elif type(filename) is Dataset:
         return filename

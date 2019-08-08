@@ -17,13 +17,35 @@ def usage():
     print("    "+sys.argv[0]+" [filename] [dim name]")
     exit(1)
 
-def change_fill_value(nc, var, former_fill_value=np.nan, fill_value=np.nan):
+def change_fill_value(nc, var, former_fill_value=np.nan, new_fill_value=np.nan):
     """Requires variable to be copied."""
-    if former_fill_value is np.nan
+    if former_fill_value is np.nan:
         compare_func = np.isnan
     else:
         compare_func = lambda x: x == former_fill_value
-    new_data = var[np.where(compare_func(var[:]))] = fill_value
+    new_data = var[np.where(compare_func(var[:]))] = new_fill_value
+
+    # Copy data
+    outfile = 'tmp' + str(random.randint(1,1000)) + '.nc'
+    tmp_nc = Dataset(outfile, 'w')
+    copync.copy_variables(nc, tmp_nc,  ignore=[var.name])
+    tmp_nc.createVariable(var.name, var.dtype, var.dimensions, fill_value=new_fill_value)
+    copync.copy_var_attrs(valid_var, new_var)
+    os.rename(outfile, nc.filepath())
+
+def change_time_units(var):
+    """Change the time unit from epoch time to hours since 1800"""
+    century18 = dt.datetime(1800,1,1,0)
+    for i,j in enumerate(var[:]):
+        date = dt.datetime.utcfromtimestamp(j)
+        seconds = (date - century18).total_seconds()
+        hours = int( seconds / 60 / 60 )
+        var[i] = hours
+    setattr(var, 'standard_name', "time")
+    setattr(var, 'long_name', "time")
+    setattr(var, "units","hours since 1800-01-01 00:00:00.0")
+    setattr(var, "calendar", "proleptic_gregorian")
+    return var
 
 
 def add_utc_date(nc, time_var):
@@ -33,6 +55,7 @@ def add_utc_date(nc, time_var):
     """
     # Create Variable
     utc = nc.createVariable('utc_time', int, ('time'))
+    setattr(utc, 'standard_name', "time")
     setattr(utc, 'long_name' "UTC date yyyy-mm-dd hh:00:00 as yyyymmddhh")
     setattr(utc, "units","Gregorian_year month day hour")
 
@@ -214,6 +237,17 @@ def remove_dimension(nc, dim_name, outfile=None):
 
     return (outfile, tmp_nc)
 
+def change_fill_value(nc, fill_value):
+    """Changes fill value for all variables in file"""
+
+    outfile = 'tmp' + str(random.randint(1,1000)) + '.nc'
+    for var in nc.variables:
+        out_nc = copync.copy_dimensions(nc, outfile)
+        copync.copy_variables(nc, out_nc, new_fill_value=fill_value)
+    out_nc.close()
+    return outfile
+
+
 
 if __name__ == '__main__':
     if len(sys.argv) <= 2:
@@ -224,8 +258,11 @@ if __name__ == '__main__':
     outfile,nc = remove_dimension(nc, dim_name)
     add_cell_methods(nc)
     change_coordinates(nc)
-    add_utc_date(nc, nc.variables['time']):
+    add_utc_date(nc, nc.variables['time'])
+    change_time_units(nc.variables['time']):
     nc.close()
-    os.rename(outfile, nc_file)
+    second_outfile = change_fill_value(outfile, 9999)
+    os.remove(outfile)
+    os.rename(second_outfile, nc_file)
 
 
