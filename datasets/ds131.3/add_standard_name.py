@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import yaml
+import pdb
 from netCDF4 import Dataset
 """Searches netcdf file for variables that do not have standard names
 and attempts to replace them from std_names dict.
@@ -24,21 +25,29 @@ def add_standard_name(filename, std_names):
     and attempts to replace them from std_names dict.
     Uses existing long_name as key.
     """
-    nc = Dataset(filename, 'a')
+    nc = Dataset(filename, 'r+')
+    print('File loaded')
     for var_str in nc.variables:
         var = nc.variables[var_str]
-        if 'standard_name' not in var and 'long_name' in var and 'long_name' in std_names:
+        attrs = var.ncattrs()
+        if 'standard_name' not in attrs and \
+                'long_name' in attrs and \
+                'long_name' in std_names:
             # Try to add standard name if exists
             long_name = var['long_name']
             std_name = std_names[long_name]
-            if std_name std_name is None or std_name == '':
+            if std_name is None or std_name == '':
                 err_msg = 'standard_name for '+long_name+' doesn\'t exist or is empty'
                 sys.err.write(err_msg)
+                continue
             var.setncattr('standard_name', std_name)
+        else:
+            print('no std name; has long name; long name not in yaml')
 
 
 yaml_file = 'grib2standard_name.yaml'
 std_names = load_yaml(yaml_file)
+print('yaml loaded')
 
 if len(sys.argv) <= 1:
     sys.stderr.write('No netcdf file')

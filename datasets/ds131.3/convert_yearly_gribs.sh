@@ -1,5 +1,21 @@
 #!/bin/bash
 
+######################################################
+# convert_yearly_gribs [in_dir] [out_dir] [file_type]
+#
+# in_dir - a parent directory to all files of needed file_type,
+# out_dir - location to create directory structure and place output files
+# file_type - 'spread', 'mean', 'obs', 'meanfg', 'sprdfg', 'meansflx' or 'sprdsflx'
+#             This is the type of file that has special processing depending on type
+#
+# This program first separates by like parameter, separates into similar levels,
+# converts to grib2, and finally converts to netCDF4 with custom metadata.
+#
+
+###################################################
+# usage
+# Displays usage, then exits
+#
 usage()
 {
     echo "Usage:"
@@ -7,16 +23,28 @@ usage()
     echo "in_dir"
     exit 1
 }
+###################################################
+# check_invariant [filename]
+# Checks if filename argument contains string that
+# indicates it's an invariant.
+#
 check_invariant()
 {
+    # PRES_convective not an invariant, but shouldn't be in input files.
+    # SUNSD is only in sflx spread files and doesn't make sense in there
     local filename=$1
-    echo $filename | egrep "LAND|HGT_sfc"
+    echo $filename | egrep "LAND|HGT_sfc|PRES_convective|SUNSD"
     rc=$?
     if [[ $rc -eq 0 ]]; then
         return 5
     fi
     return 0
 }
+###################################################
+# convert_g1_to_g2 [infile] [outfile]
+# Wrapper of convertG12.sh to convert grib1 file to
+# grib2 file
+#
 convert_g1_to_g2()
 {
     echo "Done converting grib1 to grib2"
@@ -25,6 +53,13 @@ convert_g1_to_g2()
     $common_dir/convertG12.sh $g1infile $g2outfile
     echo "Done converting grib1 to grib2"
 }
+###################################################
+# convert_cfgrib [infile] [outfile]
+# If possible, converts grib1 to grib2 (needed since
+# cfgrib doesn't respond as well to grib1),
+# then calls cfgrib to convert file.
+# Additionally, adds 131.3 specific DOI and provenance.
+#
 convert_cfgrib()
 {
     infile=$1
@@ -50,6 +85,11 @@ convert_cfgrib()
     $common_dir/add_nc_global.py $outfile 'RDA-Curation-Repo' 'https://github.com/NCAR/rda-dataset-curation/tree/master/datasets/ds131.3'
 
 }
+
+###################################################
+# convert_ncl [infile] [outfile]
+# Uses ncl to convert to netcdf.
+#
 convert_ncl()
 {
     infile=$1
@@ -106,6 +146,10 @@ common_dir="../../common/"
 subsetParamExe="$common_dir/subsetGrib.sh"
 subsetLevelExe="$common_dir/subsetGribByLevel.sh"
 isGrib1="$common_dir/isGrib1.py"
+removeDim="$common_dir/removeDimension.py"
+
+# Config
+rmIntermediate='true' # comment out if not needed
 
 #####################
 ## Spread Analysis ##
@@ -169,6 +213,13 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         >&2 echo "converting $anlFile to netcdf"
         #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
+        $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -180,8 +231,10 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         echo "Adding LSM"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $anlDir/*sprdanl*grb*
-    rm $anlDir/*sprd*.idx
+    if [[ -z $rmIntermediate ]]; then
+        rm $anlDir/*sprdanl*grb*
+        rm $anlDir/*sprd*.idx
+    fi
 fi
 ###################
 ## Mean Analysis ##
@@ -248,8 +301,14 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         filename=`echo $anlFile | sed "s/pgrbensmeananl/anl_mean_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
-        #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
+        $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -260,8 +319,10 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo "Adding LSM"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $anlDir/*meananl*grb*
-    rm $anlDir/*meananl*.idx
+    if [[ -z $rmIntermediate ]]; then
+        rm $anlDir/*meananl*grb*
+        rm $anlDir/*meananl*.idx
+    fi
 fi
 ########################
 ## Spread First Guess ##
@@ -277,6 +338,19 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
             exit 1
         fi
     done
+    # Do SFLX spread
+    for fgFile in `find $tmp_SFLX | grep 'sprd_fgonly' | sort`; do
+        echo "Starting fg processing"
+        $subsetParamExe $fgFile -o $fgDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $fgFile"
+            exit 1
+        fi
+    done
+
+
+
     echo "Completed subsetParam on fg"
     for fgFile in $fgDir/*sprd*; do
         $subsetLevelExe $fgFile -o $fgDir
@@ -292,11 +366,25 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
     for fgFile in $fgDir/*sprd*; do
         counter=$(( $counter + 1 ))
         echo "file $counter/$numFiles"
+
+        check_invariant $fgFile
+        rc=$?
+        if [[ $rc -eq 5 ]]; then # If it's an invariant
+            continue
+        fi
+
         filename=`echo $fgFile | sed "s/pgrbenssprd/fg_spread_$year/" | sed 's/grb/nc/'`
         echo $filename
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
+        $removeDim $filename 'none'
         #rm $fgFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -308,25 +396,29 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         echo "Adding land"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $fgDir/*sprdfg*.idx
-    rm $fgDir/*sprdfg*grb*
+
+    if [[ -z $rmIntermediate ]]; then
+        rm $fgDir/*sprd*.idx
+        rm $fgDir/*sprd*grb*
+    fi
 fi
 ######################
 ## Mean First Guess ##
 ######################
 if [[ -z $file_type || $file_type == 'meanfg' ]]; then
     # First guess mean - finds all mean first guess files and subsets by param
-   # for fgFile in `find $in_dir | grep 'meanfg' | sort`; do
-   #     echo "Starting fg processing"
-   #     $subsetParamExe $fgFile -o $fgDir
-   #     rc=$?
-   #     if [[ $rc -ne 0 ]]; then
-   #         >&2 echo "subsetParam Failed on $fgFile"
-   #         exit 1
-   #     fi
-   # done
     echo "Starting fg processing"
     for fgFile in `find $tmp_FG | grep 'mean_fgonly' | sort`; do
+        $subsetParamExe $fgFile -o $fgDir
+        rc=$?
+        if [[ $rc -ne 0 ]]; then
+            >&2 echo "subsetParam Failed on $fgFile"
+            exit 1
+        fi
+    done
+   # Do SFLX
+    echo "Starting fg processing"
+    for fgFile in `find $tmp_SFLX | grep 'mean_fgonly' | sort`; do
         $subsetParamExe $fgFile -o $fgDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -363,6 +455,13 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
+        echo $filename | grep 'TMP_depth'
+        if [[ $? -eq 0 ]]; then # Handle TSOIL
+            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            mv $filename $newFilename
+            filename=$newFilename
+        fi
+        $removeDim $filename 'none'
         #rm $fgFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -373,9 +472,11 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         echo "Adding LSM"
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
-    rm $fgDir/*mean*.idx
-    rm $fgDir/*mean*grb*
-    rm $tmp_FG/*meananl*
+    if [[ -z $rmIntermediate ]]; then
+        rm $fgDir/*mean*.idx
+        rm $fgDir/*mean*grb*
+        rm $tmp_FG/*meananl*
+    fi
 fi
 #######################
 ## Observation Files ##
@@ -388,7 +489,7 @@ if [[ -z $file_type || $file_type == 'obs' ]]; then
 
     cd $obsDir; tar -cvzf psobs_$year.tgz *; cd -
     rm $obsDir/${year}*
-    #dsarch -DS ds131.3 -AM -NO -NB -GN PREPOBS -DF ASCII -FF TAR.GZ -LF psobs_$year.tgz -MF psobs_$year.tgz
+    dsarch -DS ds131.3 -AM -NO -NB -GN PREPOBS -DF ASCII -FF TAR.GZ -LF psobs_$year.tgz -MF psobs_$year.tgz
 fi
 ##############
 ## SFLX MEAN #
@@ -396,7 +497,7 @@ fi
 if [[ -z $file_type || $file_type == 'meansflx' ]]; then
     echo "Surface flux"
     echo "Starting fg processing"
-    for sflxFile in `find $tmp_SFLX | grep 'mean_fgonly' | sort`; do
+    for sflxFile in `find $tmp_SFLX/instant3hr | grep 'mean' | sort`; do
         $subsetParamExe $sflxFile -o $sflxDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -445,10 +546,11 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
             continue
         fi
 
-        filename=`echo $sflxFile | sed "s/grbensmean/sflx_mean_$year/" | sed 's/grb.*$/nc/'`
+        filename=`echo $sflxFile | sed "s/pgrbensmean/anl_mean_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
+        $removeDim $filename 'step'
         #rm $fgFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -460,9 +562,12 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
-    rm $sflxDir/*mean*.grb
-    rm $sflxDir/*mean*.idx
-    rm $tmp_SFLX/*meananl*
+
+    if [[ -z $rmIntermediate ]]; then
+        rm $sflxDir/*mean*.grb
+        rm $sflxDir/*mean*.idx
+        rm $tmp_SFLX/*meananl*
+    fi
 fi
 ##############
 ## SFLX SPRD #
@@ -470,7 +575,7 @@ fi
 if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
     echo "Surface flux"
     echo "Starting fg processing"
-    for sflxFile in `find $tmp_SFLX | grep 'sprd_fgonly' | sort`; do
+    for sflxFile in `find $tmp_SFLX/instant3hr | grep 'sprd' | sort`; do
         $subsetParamExe $sflxFile -o $sflxDir
         rc=$?
         if [[ $rc -ne 0 ]]; then
@@ -519,10 +624,11 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
             continue
         fi
 
-        filename=`echo $sflxFile | sed "s/grbenssprd/sflx_spread_$year/" | sed 's/grb.*$/nc/'`
+        filename=`echo $sflxFile | sed "s/pgrbenssprd/anl_spread_$year/" | sed 's/grb.*$/nc/'`
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
+        $removeDim $filename 'step'
         #rm $fgFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -535,7 +641,9 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
         /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
-    rm $sflxDir/*psrd*.grb
-    rm $sflxDir/*sprd*.idx
-    rm $tmp_SFLX/*sprdfg*
+    if [[ -z $rmIntermediate ]]; then
+        rm $sflxDir/*sprd*grb*
+        rm $sflxDir/*sprd*.idx
+        rm $tmp_SFLX/*sprdfg*
+    fi
 fi

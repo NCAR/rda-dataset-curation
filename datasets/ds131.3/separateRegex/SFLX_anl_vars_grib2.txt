@@ -1,6 +1,3 @@
-ACOND:surface
-TMP:1 hybrid
-CPOFP:surface
 CSDLF:surface
 CSDSF:surface
 CSULF:top of atmosphere
@@ -9,28 +6,15 @@ CSUSF:top of atmosphere
 CSUSF:surface
 EVBS:surface
 EVCW:surface
-FLDCP:surface
-FRICV:surface
 HGT:1 hybrid
 NBDSF:surface
 NDDSF:surface
-QMAX:2 m
-QMIN:2 m
 SBSNO:surface
-SFCR:surface
-SFEXC:surface
-SPFH:1 hybrid
 SNOHF:surface
 SNOWC:surface
-SOILM:
 SSRUN:surface
 TRANS:surface
 UFLX:surface
-UGRD:1 hybrid
 VBDSF:surface
 VDDSF:surface
-VEG:surface
 VFLX:surface
-VGTYP:surface
-VGRD:1 hybrid
-WILT:surface
