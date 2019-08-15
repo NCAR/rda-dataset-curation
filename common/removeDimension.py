@@ -36,11 +36,20 @@ def change_fill_value(nc, var, former_fill_value=np.nan, new_fill_value=np.nan):
 def change_time_units(var):
     """Change the time unit from epoch time to hours since 1800"""
     century18 = dt.datetime(1800,1,1,0)
-    for i,j in enumerate(var[:]):
-        date = dt.datetime.utcfromtimestamp(j)
+    #for i,j in enumerate(var[:]):
+    #    date = dt.datetime.utcfromtimestamp(j)
+    #    seconds = (date - century18).total_seconds()
+    #    hours = int( seconds / 60 / 60 )
+    #    var[i] = hours
+    def change_unit(date):
+        date = dt.datetime.utcfromtimestamp(date)
         seconds = (date - century18).total_seconds()
         hours = int( seconds / 60 / 60 )
-        var[i] = hours
+        return hours
+
+    vfunc = np.vectorize(change_unit)
+    new_data = vfunc(var[:])
+    var[:] = new_data
     setattr(var, 'standard_name', "time")
     setattr(var, 'long_name', "time")
     setattr(var, "units","hours since 1800-01-01 00:00:00.0")
@@ -56,12 +65,12 @@ def add_utc_date(nc, time_var):
     # Create Variable
     utc = nc.createVariable('utc_time', int, ('time'))
     setattr(utc, 'standard_name', "time")
-    setattr(utc, 'long_name' "UTC date yyyy-mm-dd hh:00:00 as yyyymmddhh")
+    setattr(utc, 'long_name', "UTC date yyyy-mm-dd hh:00:00 as yyyymmddhh")
     setattr(utc, "units","Gregorian_year month day hour")
 
-    toUTC = lambda d: int(datetime.datetime.fromtimestamp(d).strftime('%Y%m%d%H'))
+    toUTC = lambda d: int(dt.datetime.fromtimestamp(d).strftime('%Y%m%d%H'))
     vfunc = np.vectorize(toUTC)
-    utc_data = vfunc(t[:])
+    utc_data = vfunc(time_var[:])
     utc[:] = utc_data
 
 
@@ -104,7 +113,7 @@ def add_time_bounds(nc, varname):
     # Get variable matching varname
 
     time_var = nc.variables['time']
-    tim_var.setncattr('bounds', bnds_name)
+    time_var.setncattr('bounds', bnds_name)
     time_data = time_var[:]
     time_length = len(time_data)
 
@@ -112,7 +121,7 @@ def add_time_bounds(nc, varname):
     bounds_data = np.dstack((time_data,time_data)).reshape(time_length,2)
     for i in bounds_data:
         i[0] = i[0] - (THREE_HOURS)
-    bounds_var = nc.createVariable(bnds_name, time_var.dtype, ('time', bounds_dim))
+    bounds_var = nc.createVariable(bnds_name, time_var.dtype, ('time', bounds_dim), fill_value=9999)
     bounds_var[:] = bounds_data
 
 
@@ -132,7 +141,8 @@ def add_cell_methods(nc):
                 cur_str = var.getncattr('cell_methods')
                 var.setncattr('cell_methods', cur_str + " time: " + methods[var.getncattr(step_str)])
             else:
-                var.setncattr('cell_methods', "time: " + methods[var.getncattr(step_str)])
+                pass
+                #var.setncattr('cell_methods', "time: " + methods[var.getncattr(step_str)])
 
 
 def change_coordinates(nc):
@@ -241,12 +251,10 @@ def change_fill_value(nc, fill_value):
     """Changes fill value for all variables in file"""
 
     outfile = 'tmp' + str(random.randint(1,1000)) + '.nc'
-    for var in nc.variables:
-        out_nc = copync.copy_dimensions(nc, outfile)
-        copync.copy_variables(nc, out_nc, new_fill_value=fill_value)
+    out_nc = copync.copy_dimensions(nc, outfile)
+    copync.copy_variables(nc, out_nc, new_fill_value=fill_value)
     out_nc.close()
     return outfile
-
 
 
 if __name__ == '__main__':
@@ -255,13 +263,16 @@ if __name__ == '__main__':
     nc_file = sys.argv[1]
     dim_name = sys.argv[2]
     nc = Dataset(nc_file)
-    outfile,nc = remove_dimension(nc, dim_name)
+    if dim_name != "none":
+        outfile,nc = remove_dimension(nc, dim_name)
     add_cell_methods(nc)
     change_coordinates(nc)
     add_utc_date(nc, nc.variables['time'])
-    change_time_units(nc.variables['time']):
+    change_time_units(nc.variables['time'])
+    if 'time_bnds' in nc.variables:
+        change_time_units(nc.variables['time_bnds'])
+    second_outfile = change_fill_value(nc, 9999)
     nc.close()
-    second_outfile = change_fill_value(outfile, 9999)
     os.remove(outfile)
     os.rename(second_outfile, nc_file)
 

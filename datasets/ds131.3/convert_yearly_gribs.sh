@@ -384,6 +384,7 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
             mv $filename $newFilename
             filename=$newFilename
         fi
+        $removeDim $filename 'none'
         #rm $fgFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"
@@ -460,6 +461,7 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
             mv $filename $newFilename
             filename=$newFilename
         fi
+        $removeDim $filename 'none'
         #rm $fgFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
         echo "Size before:"

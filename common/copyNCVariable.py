@@ -41,17 +41,21 @@ def copy_variables(infile, outfile, ignore=[], new_fill_value=None):
 
     for v in f1.variables:
         if v not in ignore:
-            copy_variable(f1, f2, var_name, new_fill_value=new_fill_value)
+            copy_variable(f1, f2, v, new_fill_value=new_fill_value)
     return f2
 
 def change_fill_value(var, new_fill_value=np.nan):
      """Requires variable to be copied."""
-     if np.isnan(var.getncattr('_FillValue')):
-         compare_func = np.isnan
+     if '_FillValue' in var.ncattrs():
+         if np.isnan(var.getncattr('_FillValue')):
+             compare_func = np.isnan
+         else:
+             former_fill_value = var.getncattr('_FillValue')
+             compare_func = lambda x: x == former_fill_value
+         new_data  = var[:]
+         new_data[np.where(compare_func(var[:]))] = new_fill_value
      else:
-         compare_func = lambda x: x == former_fill_value
-     new_data  = var[:]
-     new_data[np.where(compare_func(var[:]))] = new_fill_value
+         new_data = var[:]
      return new_data
 
 
