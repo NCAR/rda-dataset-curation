@@ -6,7 +6,6 @@ CSUSF:top of atmosphere
 CSUSF:surface
 EVBS:surface
 EVCW:surface
-HGT:1 hybrid
 NBDSF:surface
 NDDSF:surface
 SBSNO:surface

@@ -26,7 +26,7 @@ def change_fill_value(nc, var, former_fill_value=np.nan, new_fill_value=np.nan):
     new_data = var[np.where(compare_func(var[:]))] = new_fill_value
 
     # Copy data
-    outfile = 'tmp' + str(random.randint(1,1000)) + '.nc'
+    outfile = 'tmp' + str(random.randint(1,10000)) + '.nc'
     tmp_nc = Dataset(outfile, 'w')
     copync.copy_variables(nc, tmp_nc,  ignore=[var.name])
     tmp_nc.createVariable(var.name, var.dtype, var.dimensions, fill_value=new_fill_value)
@@ -136,7 +136,7 @@ def add_cell_methods(nc):
     step_str = 'GRIB_stepType'
     for i in nc.variables:
         var = nc.variables[i]
-        if step_str in var.ncattrs() and var.getncattr(step_str) is not 'instant':
+        if step_str in var.ncattrs() and 'instant' not in var.getncattr(step_str):
             if 'cell_methods' in var.ncattrs():
                 cur_str = var.getncattr('cell_methods')
                 var.setncattr('cell_methods', cur_str + " time: " + methods[var.getncattr(step_str)])
@@ -165,7 +165,7 @@ def remove_dimension(nc, dim_name, outfile=None):
     vars_to_copy = find_variables_without_dimension(nc, dim_name)
     reduce_needed = check_if_reduce_needed(vars_to_modify)
     if outfile is None:
-        outfile = 'tmp' + str(random.randint(1,1000)) + '.nc'
+        outfile = 'tmp' + str(random.randint(1,10000)) + '.nc'
     tmp_nc = Dataset(outfile, 'w')
     # First copy global attrs
     copync.copy_global_attrs(nc, tmp_nc)
@@ -249,8 +249,7 @@ def remove_dimension(nc, dim_name, outfile=None):
 
 def change_fill_value(nc, fill_value):
     """Changes fill value for all variables in file"""
-
-    outfile = 'tmp' + str(random.randint(1,1000)) + '.nc'
+    outfile = 'tmp' + str(random.randint(1,100000)) + '.nc'
     out_nc = copync.copy_dimensions(nc, outfile)
     copync.copy_variables(nc, out_nc, new_fill_value=fill_value)
     out_nc.close()

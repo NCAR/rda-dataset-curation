@@ -20,9 +20,9 @@ def load_yaml(filename):
             exit(1)
     return yaml_dict
 
-def add_standard_name(filename, std_names):
+def add_standard_name(filename, attrs_dict):
     """Searches netcdf file for variables that do not have standard names
-    and attempts to replace them from std_names dict.
+    and attempts to replace them from attrs dict.
     Uses existing long_name as key.
     """
     nc = Dataset(filename, 'r+')
@@ -30,30 +30,35 @@ def add_standard_name(filename, std_names):
     for var_str in nc.variables:
         var = nc.variables[var_str]
         attrs = var.ncattrs()
-        if 'standard_name' not in attrs and \
-                'long_name' in attrs and \
-                'long_name' in std_names:
+        if 'long_name' in attrs and var.getncattr('long_name') in attrs_dict:
             # Try to add standard name if exists
-            long_name = var['long_name']
-            std_name = std_names[long_name]
-            if std_name is None or std_name == '':
-                err_msg = 'standard_name for '+long_name+' doesn\'t exist or is empty'
-                sys.err.write(err_msg)
+            long_name = var.getncattr('long_name')
+            attrs = attrs_dict[long_name]
+            if attrs is None or attrs == '':
+                err_msg = 'standard_name for '+long_name+' doesn\'t exist or is empty\n'
+                sys.stderr.write(err_msg)
                 continue
-            var.setncattr('standard_name', std_name)
+            if type(attrs) is str:
+                var.setncattr('standard_name', attrs)
+            elif type(attrs) is dict:
+                for key,value in attrs.items():
+                    var.setncattr(key, value)
+
+
         else:
-            print('no std name; has long name; long name not in yaml')
+            print('Either no long name or not in yaml file for '+ var.name)
+    nc.close()
 
 
-yaml_file = 'grib2standard_name.yaml'
-std_names = load_yaml(yaml_file)
+yaml_file = 'grib2attrs.yaml'
+attrs = load_yaml(yaml_file)
 print('yaml loaded')
 
 if len(sys.argv) <= 1:
     sys.stderr.write('No netcdf file')
     exit(1)
 
-add_standard_name(sys.argv[1], std_names)
+add_standard_name(sys.argv[1], attrs)
 
 
 

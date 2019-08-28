@@ -30,7 +30,7 @@ def copy_variable(infile, outfile, var_name, new_varname=None, new_fill_value=No
     else:
         copy_var_attrs(var, new_var)
         new_var[:] = var[:]
-    return new_var
+    return f2
 
 def copy_variables(infile, outfile, ignore=[], new_fill_value=None):
     """Copies all variables from outfile to infile.
@@ -115,4 +115,5 @@ if __name__ == "__main__":
         args = parser.parse_args(['-h'])
         exit(1)
     args = parser.parse_args()
-    copy_variable(args.sourceFile, args.destFile, args.varname)
+    f2 = copy_variable(args.sourceFile, args.destFile, args.varname)
+    f2.close()

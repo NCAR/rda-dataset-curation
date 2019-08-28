@@ -14,5 +14,6 @@ WILT
 VGRD.*hybrid
 TMP.*hybrid
 UGRD.*hybrid
+HGT.*hybrid
 QMIN
 QMAX

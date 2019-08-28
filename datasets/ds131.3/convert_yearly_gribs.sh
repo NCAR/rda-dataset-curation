@@ -149,7 +149,7 @@ isGrib1="$common_dir/isGrib1.py"
 removeDim="$common_dir/removeDimension.py"
 
 # Config
-rmIntermediate='true' # comment out if not needed
+#rmIntermediate='true' # comment out if not needed
 
 #####################
 ## Spread Analysis ##
@@ -213,12 +213,22 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         >&2 echo "converting $anlFile to netcdf"
         #convert_ncl $anlFile $filename
         convert_cfgrib $anlFile $filename
+        echo $filename | grep 'SNOD'
+        if [[ $? -eq 0 ]]; then # Handle SNOD
+            $common_dir/add_var_attr.py $filename 'standard_name' 'surface_snow_thickness'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'surface_snow_thickness'
+        fi
         echo $filename | grep 'TMP_depth'
         if [[ $? -eq 0 ]]; then # Handle TSOIL
-            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
             mv $filename $newFilename
             filename=$newFilename
+            $common_dir/add_var_attr.py $filename 'standard_name' 'soil_temperature'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'soil_temperature'
         fi
+        $common_dir/add_var_attr.py $filename 'cell_methods' 'area: standard_deviation'
+        echo "Adding LSM"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
         $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
@@ -227,9 +237,6 @@ if [[ -z $file_type || $file_type == 'spread' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
-        $common_dir/add_var_attr.py $filename 'cell_methods' 'area: standard_deviation'
-        echo "Adding LSM"
-        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
     if [[ -z $rmIntermediate ]]; then
         rm $anlDir/*sprdanl*grb*
@@ -302,12 +309,21 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         echo $filename
         >&2 echo "converting $anlFile to netcdf"
         convert_cfgrib $anlFile $filename
+        echo $filename | grep 'SNOD'
+        if [[ $? -eq 0 ]]; then # Handle SNOD
+            $common_dir/add_var_attr.py $filename 'standard_name' 'surface_snow_thickness'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'surface_snow_thickness'
+        fi
         echo $filename | grep 'TMP_depth'
         if [[ $? -eq 0 ]]; then # Handle TSOIL
-            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
             mv $filename $newFilename
             filename=$newFilename
+            $common_dir/add_var_attr.py $filename 'standard_name' 'soil_temperature'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'soil_temperature'
         fi
+        echo "Adding LSM"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
         $removeDim $filename 'step'
         #rm $anlFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
@@ -316,8 +332,6 @@ if [[ -z $file_type || $file_type == 'mean' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
-        echo "Adding LSM"
-        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
     if [[ -z $rmIntermediate ]]; then
         rm $anlDir/*meananl*grb*
@@ -378,11 +392,18 @@ if [[ -z $file_type || $file_type == 'sprdfg' ]]; then
         >&2 echo "converting $fgFile to netcdf"
         #convert_ncl $fgFile $filename
         convert_cfgrib $fgFile $filename
+        echo $filename | grep 'SNOD'
+        if [[ $? -eq 0 ]]; then # Handle SNOD
+            $common_dir/add_var_attr.py $filename 'standard_name' 'surface_snow_thickness'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'surface_snow_thickness'
+        fi
         echo $filename | grep 'TMP_depth'
         if [[ $? -eq 0 ]]; then # Handle TSOIL
-            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
             mv $filename $newFilename
             filename=$newFilename
+            $common_dir/add_var_attr.py $filename 'standard_name' 'soil_temperature'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'soil_temperature'
         fi
         $removeDim $filename 'none'
         #rm $fgFile
@@ -457,10 +478,19 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         convert_cfgrib $fgFile $filename
         echo $filename | grep 'TMP_depth'
         if [[ $? -eq 0 ]]; then # Handle TSOIL
-            $newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
+            newFilename=`echo $filename | sed "s/TMP/TSOIL/"`
             mv $filename $newFilename
             filename=$newFilename
+            $common_dir/add_var_attr.py $filename 'standard_name' 'soil_temperature'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'soil_temperature'
         fi
+        echo $filename | grep 'SNOD'
+        if [[ $? -eq 0 ]]; then # Handle SNOD
+            $common_dir/add_var_attr.py $filename 'standard_name' 'surface_snow_thickness'
+            $common_dir/add_var_attr.py $filename 'GRIB_cfName' 'surface_snow_thickness'
+        fi
+        echo "Adding LSM"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
         $removeDim $filename 'none'
         #rm $fgFile
         nccopy -d 4 -k nc4 -m 5G $filename ${filename}.compressed
@@ -469,8 +499,6 @@ if [[ -z $file_type || $file_type == 'meanfg' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
-        echo "Adding LSM"
-        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
     done
     if [[ -z $rmIntermediate ]]; then
         rm $fgDir/*mean*.idx
@@ -550,6 +578,8 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
+        echo "Adding LSM"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
         $removeDim $filename 'step'
         #rm $fgFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
@@ -558,8 +588,6 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
-        echo "Adding land"
-        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
 
@@ -628,6 +656,8 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
         echo $filename
         >&2 echo "converting $sflxFile to netcdf"
         convert_cfgrib $sflxFile $filename
+        echo "Adding LSM"
+        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
         $removeDim $filename 'step'
         #rm $fgFile
         nccopy -d 6 -k nc4 -m 5G $filename ${filename}.compressed
@@ -636,9 +666,7 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
         mv ${filename}.compressed $filename
         echo "Size after:"
         du -m $filename
-        echo "Adding land"
         $common_dir/add_var_attr.py $filename 'cell_methods' 'area: standard_deviation'
-        /glade/u/home/rpconroy/anaconda3/bin/python $common_dir/copyNCVariable.py -s $invariants/land.nc -d $filename -vn lsm
 
     done
     if [[ -z $rmIntermediate ]]; then
