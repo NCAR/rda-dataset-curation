@@ -24,7 +24,7 @@ def copy_variable(infile, outfile, var_name, new_varname=None, new_fill_value=No
 
     new_var = f2.createVariable(new_varname, var.dtype, var.dimensions, fill_value=new_fill_value)
     # Add attributes
-    if new_fill_value is not None:
+    if new_fill_value is not None and len(var.dimensions) > 0:
         copy_var_attrs(var, new_var, ignore=['_FillValue'])
         new_var[:] = change_fill_value(var, 9999)
     else:

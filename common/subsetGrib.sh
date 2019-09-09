@@ -49,7 +49,7 @@ separateWgribParams()
             echo "$param seems wrong, skipping"
         else
             outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
-            wgrib $file | grep $param | wgrib -i $file -append -grib -o $outfile >/dev/null
+            wgrib $file | grep ":${param}:" | wgrib -i $file -append -grib -o $outfile >/dev/null
         fi
     done
 }
@@ -67,7 +67,7 @@ separateWgrib2Params()
             echo "$param seems wrong, skipping"
         else
             outfile="${outdir}${fileBasename}_${param}_All_Levels.grb"
-            wgrib2 $file | grep $param | wgrib2 -i $file -append -grib $outfile >/dev/null
+            wgrib2 $file | grep ":${param}:" | wgrib2 -i $file -append -grib $outfile >/dev/null
         fi
     done
 }

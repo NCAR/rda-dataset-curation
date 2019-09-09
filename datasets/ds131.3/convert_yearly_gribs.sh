@@ -514,6 +514,7 @@ if [[ -z $file_type || $file_type == 'obs' ]]; then
         filename=${year}`echo $obsFile | grep -o '..........\/psob.*$' | sed 's/\//-/g'`
         cp $obsFile $obsDir/$filename
     done
+    cp $invariants/Key_for_psobs_text_files.docx $obsDir/$filename
 
     cd $obsDir; tar -cvzf psobs_$year.tgz *; cd -
     rm $obsDir/${year}*

@@ -17,22 +17,6 @@ def usage():
     print("    "+sys.argv[0]+" [filename] [dim name]")
     exit(1)
 
-def change_fill_value(nc, var, former_fill_value=np.nan, new_fill_value=np.nan):
-    """Requires variable to be copied."""
-    if former_fill_value is np.nan:
-        compare_func = np.isnan
-    else:
-        compare_func = lambda x: x == former_fill_value
-    new_data = var[np.where(compare_func(var[:]))] = new_fill_value
-
-    # Copy data
-    outfile = 'tmp' + str(random.randint(1,10000)) + '.nc'
-    tmp_nc = Dataset(outfile, 'w')
-    copync.copy_variables(nc, tmp_nc,  ignore=[var.name])
-    tmp_nc.createVariable(var.name, var.dtype, var.dimensions, fill_value=new_fill_value)
-    copync.copy_var_attrs(valid_var, new_var)
-    os.rename(outfile, nc.filepath())
-
 def change_time_units(var):
     """Change the time unit from epoch time to hours since 1800"""
     century18 = dt.datetime(1800,1,1,0)
@@ -259,9 +243,10 @@ def change_fill_value(nc, fill_value):
 if __name__ == '__main__':
     if len(sys.argv) <= 2:
         usage()
+    outfile = None
     nc_file = sys.argv[1]
     dim_name = sys.argv[2]
-    nc = Dataset(nc_file)
+    nc = Dataset(nc_file, 'r+')
     if dim_name != "none":
         outfile,nc = remove_dimension(nc, dim_name)
     add_cell_methods(nc)
@@ -272,7 +257,8 @@ if __name__ == '__main__':
         change_time_units(nc.variables['time_bnds'])
     second_outfile = change_fill_value(nc, 9999)
     nc.close()
-    os.remove(outfile)
+    if outfile is not None:
+        os.remove(outfile)
     os.rename(second_outfile, nc_file)
 
 
