@@ -37,4 +37,3 @@ for file in $year/sflx/*.nc; do
     echo "dsarch -DS ds131.3 -AW -GX -OE -GN TS_AN_6H-$groupname -DF hdf5nc4 -LF $file"
     dsarch -DS ds131.3 -AW -GX -OE -GN TS_AN_6H-$groupname -DF hdf5nc4 -LF $file
 done
-#dsarch -DS ds131.3 -AW -GX -OE -GN TS_SFLX-TMP_2m -DF hdf5nc4 -LF 1837/sflx/sflx_mean_1837_TMP_2m.nc

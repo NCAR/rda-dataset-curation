@@ -595,7 +595,6 @@ if [[ -z $file_type || $file_type == 'meansflx' ]]; then
     if [[ -z $rmIntermediate ]]; then
         rm $sflxDir/*mean*.grb
         rm $sflxDir/*mean*.idx
-        rm $tmp_SFLX/*meananl*
     fi
 fi
 ##############
@@ -673,6 +672,5 @@ if [[ -z $file_type || $file_type == 'sprdsflx' ]]; then
     if [[ -z $rmIntermediate ]]; then
         rm $sflxDir/*sprd*grb*
         rm $sflxDir/*sprd*.idx
-        rm $tmp_SFLX/*sprdfg*
     fi
 fi
