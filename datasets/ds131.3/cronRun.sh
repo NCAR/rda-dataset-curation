@@ -11,4 +11,4 @@ printf "$newYear" > curYear
 echo ./runAll.sh $year
 ./runAll.sh $year > logs/${year}.out 2>&1
 archive_year=$(( $year - 2 ))
-./slurm_archive.tcsh $archive_year > logs/archive_${archive_year}.out 2>&1
+sbatch -J "${archive_year}_archive" -o logs/${year}_archive.out -e logs/${year}_archive.out slurm_archive.tcsh $archive_year
