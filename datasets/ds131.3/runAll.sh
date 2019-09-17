@@ -11,8 +11,6 @@
 # mean, spread, fg processing are in separate batch jobs
 #
 
-root_dir='/gpfs/fs1/collections/rda/transfer/20CRv3/20CRv3si'
-filelist=`find ${root_dir}/ensda_451/ -maxdepth 2 -mindepth 2 | sort`
 from=1800 # less than actual data
 to=2050   # more thna actual data
 if [[ ! -z $1 ]]; then
@@ -26,6 +24,16 @@ else
     echo "No dates; exiting"
     exit 1
 fi
+if [[ $from -gt 1980 ]]; then
+    yearSwitch='mo'
+    root_dir="/gpfs/fs1/collections/rda/transfer/20CRv3/20CRv3${yearSwitch}"
+    filelist=`find ${root_dir}/ensda_452/ -maxdepth 2 -mindepth 2 | sort`
+else
+    yearSwitch='si'
+    root_dir="/gpfs/fs1/collections/rda/transfer/20CRv3/20CRv3${yearSwitch}"
+    filelist=`find ${root_dir}/ensda_451/ -maxdepth 2 -mindepth 2 | sort`
+fi
+
 
 echo "from: $from"
 echo "to: $to"
