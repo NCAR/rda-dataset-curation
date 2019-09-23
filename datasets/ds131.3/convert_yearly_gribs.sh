@@ -514,11 +514,11 @@ if [[ -z $file_type || $file_type == 'obs' ]]; then
         filename=${year}`echo $obsFile | grep -o '..........\/psob.*$' | sed 's/\//-/g'`
         cp $obsFile $obsDir/$filename
     done
-    cp $invariants/Key_for_psobs_text_files.docx $obsDir/$filename
+    cp $invariants/Key_for_psobs_text_files.docx $obsDir/
 
     cd $obsDir; tar -cvzf psobs_$year.tgz *; cd -
     rm $obsDir/${year}*
-    dsarch -DS ds131.3 -AM -NO -NB -GN PREPOBS -DF ASCII -FF TAR.GZ -LF psobs_$year.tgz -MF psobs_$year.tgz
+    dsarch -DS ds131.3 -AM -NO -NB -GN PSOBS -DF ASCII -FF TAR.GZ -LF $obsDir/psobs_$year.tgz -MF psobs_$year.tgz
 fi
 ##############
 ## SFLX MEAN #

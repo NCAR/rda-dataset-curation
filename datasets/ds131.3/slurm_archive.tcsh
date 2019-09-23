@@ -1,7 +1,7 @@
 #!/bin/tcsh
 #SBATCH --job-name=20CR_1940
 #SBATCH --ntasks=1
-#SBATCH --time=4:00:00
+#SBATCH --time=5:00:00
 #SBATCH --account=P43713000
 #SBATCH --partition=dav
 #SBATCH --mem=2000

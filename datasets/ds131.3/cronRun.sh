@@ -12,3 +12,5 @@ echo ./runAll.sh $year
 ./runAll.sh $year > logs/${year}.out 2>&1
 archive_year=$(( $year - 2 ))
 sbatch -J "${archive_year}_archive" -o logs/${year}_archive.out -e logs/${year}_archive.out slurm_archive.tcsh $archive_year
+last_year=$(( $year - 1 ))
+echo "anl:  `find ${last_year}/anl/*nc | wc`\nfg:   `find ${last_year}/fg/*nc | wc`\nsflx:`find ${last_year}/sflx/*nc | wc`" | mail -s "20CRv3 update for $last_year" rpconroy@ucar.edu

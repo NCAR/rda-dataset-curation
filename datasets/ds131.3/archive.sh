@@ -37,3 +37,5 @@ for file in $year/sflx/*.nc; do
     echo "dsarch -DS ds131.3 -AW -GX -OE -GN TS_AN_6H-$groupname -DF hdf5nc4 -LF $file"
     dsarch -DS ds131.3 -AW -GX -OE -GN TS_AN_6H-$groupname -DF hdf5nc4 -LF $file
 done
+
+./archiveHPSS.sh $year
