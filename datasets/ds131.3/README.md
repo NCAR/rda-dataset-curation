@@ -13,10 +13,26 @@ This program will attempt to process a given directory. Typically, a year's wort
 
 ### Usage
 ```
-convert_yearly_gribs [in_dir] [out_dir]
+convert_yearly_gribs [in_dir] [out_dir] [file_type]
 ```
+  `in_dir`   - A parent directory to all files of needed file_type.
+             This needs to be in form /path/to/files/{year} since the year is determined 
+             By the direcory basename.
+             
+  `out_dir`   - location to create directory structure and place output files.
+              Output files are stored in {out_dir}/{year}
+              
+  `file_type` - 'spread', 'mean', 'obs', 'meanfg', 'sprdfg', 'meansflx' or 'sprdsflx'
+              This is the type of file that has special processing depending on type.
+              Note: *sflx file types are not surface flux variables but rather 6hr analysis variables.
+              The same is simply a carryover from an older version 
+ 
+  This program first separates by like parameter, separates into similar levels,
+  converts to grib2, and finally converts to netCDF4 with custom metadata.
+  
+A prerequisite to correctly running this is that a call to `separateByYear.sh` is needed first. This is needed as certain variables in the 'sflx' directories should be included in the 3h analysis and 3hr fg files.
+ 
 
----
 **NOTE**
 
 The program assumes in_dir has 4 digits at the end specifying the year. 
@@ -34,6 +50,7 @@ Another assumption is that the directory stucture is as follows
     psobfile             
     psobs.txt
 ```
+
 ---
 
 ## runAll
