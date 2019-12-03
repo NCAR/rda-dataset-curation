@@ -49,13 +49,13 @@ for file in $filelist; do
         sleep 5
         sbatch -J "${year}_mean_fg" --time 6:00:00 -o logs/${year}_mean_fg.out -e logs/${year}_mean_fg.out slurm_job.tcsh $file 'meanfg'
         sleep 5
-       sbatch -J "${year}_spread_fg" --time 6:00:00 -o logs/${year}_spread_fg.out -e logs/${year}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
+        sbatch -J "${year}_spread_fg" --time 6:00:00 -o logs/${year}_spread_fg.out -e logs/${year}_spread_fg.out slurm_job.tcsh $file 'sprdfg'
         sleep 5
         sbatch -J "${year}_obs" --mem=4000 --time 1:00:00 -o logs/${year}_obs.out -e logs/${year}_obs.out slurm_job.tcsh $file 'obs'
         sleep 5
-       sbatch -J "${year}_meansflx" --mem=30000 --time 2:00:00 -o logs/${year}_meansflx.out -e logs/${year}_meansflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'meansflx'
+        sbatch -J "${year}_meansflx" --mem=30000 --time 2:00:00 -o logs/${year}_meansflx.out -e logs/${year}_meansflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'meansflx'
         sleep 5
-       sbatch -J "${year}_sprdsflx" --mem=30000 --time 2:00:00 -o logs/${year}_sprdsflx.out -e logs/${year}_sprdsflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'sprdsflx'
+        sbatch -J "${year}_sprdsflx" --mem=30000 --time 2:00:00 -o logs/${year}_sprdsflx.out -e logs/${year}_sprdsflx.out slurm_job.tcsh $root_dir/ensda_451_Sflx/$year 'sprdsflx'
 
     fi
 done

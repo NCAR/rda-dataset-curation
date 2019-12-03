@@ -3,17 +3,28 @@
 Creates a configuration for a given directory
 """
 #import zarr
+import sys
+import os
 from netCDF4 import Dataset
 import xarray
 import yaml
-import sys
 import pdb
 from collections import OrderedDict
+import json
+import argparse
 
-def usage():
-    print("Usage:")
-    print(sys.argv[0] + " [Files]")
-    exit(1)
+def get_arguments():
+    """Parses arguments and returns arguments.
+    """
+    description = "Creates a default configuration file for a dataset or data files."
+    parser = argparse.ArgumentParser(prog=sys.argv[0], description=description)
+    parser.add_argument('--json', required=False, help="Use JSON output.", action='store_true')
+    parser.add_argument('--yaml', required=False, help="Use YAML output.", action='store_true')
+    parser.add_argument('--skip_errors', required=False, help="Errors do not end program.", action='store_true')
+    parser.add_argument('--title', required=False, help="Specify Title.")
+    parser.add_argument('files', nargs="+", help="Files or directory to scan.")
+    return parser.parse_args()
+
 
 def zip_iterable(iter1, iter2):
     out_dict = {}
@@ -37,7 +48,7 @@ def check_variable_exists(variables, var_name, dims):
     Returns 0 if found, otherwise returns next i"""
     i = 1
     while var_name in variables:
-        if variables[var_name]['dims'].keys() == list(dims):
+        if list(variables[var_name]['dims'].keys()) == list(dims):
             return 0
         var_name += str(i)
         i += 1
@@ -57,6 +68,20 @@ def extract_ds_info(variables, filename):
                 new_var_name = var_name+str(i)
                 variables[new_var_name] = get_config_dict(variable)
 
+def get_files_from_dir(directory):
+    """Given directory, return a list of files.
+    """
+    files = []
+    for path in os.walk(directory):
+        dirpath = path[0]
+        dirnames = path[1]
+        filenames = path[2]
+        if len(filenames) == 0:
+            continue
+        for f in filenames:
+            files.append(dirpath+'/'+f)
+    return files
+
 class LastUpdatedOrderedDict(OrderedDict):
     'Store items in the order the keys were last added'
 
@@ -66,19 +91,37 @@ class LastUpdatedOrderedDict(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 if __name__ == "__main__":
-    if len(sys.argv) <= 1:
-        usage()
+    args = get_arguments()
+    filenames = args.files
+    if args.json and args.yaml:
+        print("both yaml and json selected, defaulting to json")
+        args.yaml = False
+    if not args.json and not args.yaml:
+        args.json = True
 
-    filenames = sys.argv[1:]
-
+    if args.json:
+        ext = '.json'
+    elif args.yaml:
+        ext = '.yaml'
+    if args.title is not None:
+        config_filename = args.title+ext
+    else:
+        config_filename = args.files[0]+ext
 
     variables = {}
     for filename in filenames:
+        if os.path.isdir(filename):
+            filenames.extend(get_files_from_dir(filename))
+            continue
+        print("processing "+filename)
         extract_ds_info(variables, filename)
 
     # Make variables a collection of objects
     config = list(variables.values())
 
-    with open('config.yaml', 'w') as fh:
-        yaml.dump(config, fh, default_flow_style=False)
+    with open(config_filename, 'w') as fh:
+        if args.json:
+            json.dump(config, fh, indent=4)
+        elif args.yaml:
+            yaml.dump(config, fh, default_flow_style=False)
 
