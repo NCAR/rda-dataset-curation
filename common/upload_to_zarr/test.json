@@ -1,0 +1,110 @@
+[
+    {
+        "name": "heightAboveGround",
+        "dims": {},
+        "chunk": {}
+    },
+    {
+        "name": "latitude",
+        "dims": {
+            "latitude": 256
+        },
+        "chunk": {
+            "latitude": 256
+        }
+    },
+    {
+        "name": "longitude",
+        "dims": {
+            "longitude": 512
+        },
+        "chunk": {
+            "longitude": 512
+        }
+    },
+    {
+        "name": "lsm",
+        "dims": {
+            "latitude": 256,
+            "longitude": 512
+        },
+        "chunk": {
+            "latitude": 256,
+            "longitude": 512
+        }
+    },
+    {
+        "name": "time",
+        "dims": {
+            "time": 2928
+        },
+        "chunk": {
+            "time": 2928
+        }
+    },
+    {
+        "name": "u10",
+        "dims": {
+            "time": 2928,
+            "latitude": 256,
+            "longitude": 512
+        },
+        "chunk": {
+            "time": 2928,
+            "latitude": 256,
+            "longitude": 512
+        }
+    },
+    {
+        "name": "time_bnds",
+        "dims": {
+            "time": 2928,
+            "nv": 2
+        },
+        "chunk": {
+            "time": 2928,
+            "nv": 2
+        }
+    },
+    {
+        "name": "utc_time",
+        "dims": {
+            "time": 2928
+        },
+        "chunk": {
+            "time": 2928
+        }
+    },
+    {
+        "name": "step",
+        "dims": {},
+        "chunk": {}
+    },
+    {
+        "name": "surface",
+        "dims": {},
+        "chunk": {}
+    },
+    {
+        "name": "valid_time",
+        "dims": {
+            "time": 1460
+        },
+        "chunk": {
+            "time": 1460
+        }
+    },
+    {
+        "name": "orog",
+        "dims": {
+            "time": 1460,
+            "latitude": 256,
+            "longitude": 512
+        },
+        "chunk": {
+            "time": 1460,
+            "latitude": 256,
+            "longitude": 512
+        }
+    }
+]

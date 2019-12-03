@@ -1,0 +1,46 @@
+- chunk: {}
+  dims: {}
+  name: heightAboveGround
+- chunk:
+    latitude: 256
+  dims:
+    latitude: 256
+  name: latitude
+- chunk:
+    longitude: 512
+  dims:
+    longitude: 512
+  name: longitude
+- chunk:
+    latitude: 256
+    longitude: 512
+  dims:
+    latitude: 256
+    longitude: 512
+  name: lsm
+- chunk:
+    time: 2920
+  dims:
+    time: 2920
+  name: time
+- chunk:
+    latitude: 256
+    longitude: 512
+    time: 2920
+  dims:
+    latitude: 256
+    longitude: 512
+    time: 2920
+  name: u10
+- chunk:
+    nv: 2
+    time: 2920
+  dims:
+    nv: 2
+    time: 2920
+  name: time_bnds
+- chunk:
+    time: 2920
+  dims:
+    time: 2920
+  name: utc_time
