@@ -9,7 +9,6 @@ from netCDF4 import Dataset
 import xarray
 import yaml
 import pdb
-from collections import OrderedDict
 import json
 import argparse
 
@@ -22,6 +21,8 @@ def get_arguments():
     parser.add_argument('--yaml', required=False, help="Use YAML output.", action='store_true')
     parser.add_argument('--skip_errors', required=False, help="Errors do not end program.", action='store_true')
     parser.add_argument('--title', required=False, help="Specify Title.")
+    parser.add_argument('--append_dim', required=False, nargs="+", default='time', help="Dimension to append to.")
+    parser.add_argument('--chunk_size', required=False, default='10MB', help="Desired Chunk size. Example: 10MB, 5GB, 10KB, etc")
     parser.add_argument('files', nargs="+", help="Files or directory to scan.")
     return parser.parse_args()
 
@@ -41,7 +42,26 @@ def get_config_dict(variable):
     obj['name'] = variable.name
     obj['dims'] = zip_iterable(variable.dims, variable.shape)
     obj['chunk'] = zip_iterable(variable.dims, variable.shape)
+    obj['attrs'] = {}
     return obj
+
+def parse_chunk_size(chunk_size_str):
+    """Attempts to parse chunk size into bytes."""
+    chunk_size_str = chunk_size_str.upper()
+    size_factors =
+    {
+            "B" : 1,
+            "KB" : 1000,
+            "MB" : 1000**2,
+            "GB" : 1000**3,
+            "TB" : 1000**4,
+            }
+    format = chunk_size_str[-2:]
+    value = chunk_size_str[:-2]
+    if format not in size_factors:
+        raise ValueError(format+" not in +"size_factors.keys())
+    scaled_value = int(value) * size_factors(format)
+    return scaled_value
 
 def check_variable_exists(variables, var_name, dims):
     """Checks if you need to add variable.
@@ -58,7 +78,7 @@ def extract_ds_info(variables, filename):
     """Add filename variables to in_dict.
     """
     ds = xarray.open_dataset(filename)
-    for var_name in ds.variables.keys():
+    for var_name in ds.data_vars.keys():
         variable = ds[var_name]
         if var_name not in variables:
             variables[var_name] = get_config_dict(variable)
@@ -81,14 +101,6 @@ def get_files_from_dir(directory):
         for f in filenames:
             files.append(dirpath+'/'+f)
     return files
-
-class LastUpdatedOrderedDict(OrderedDict):
-    'Store items in the order the keys were last added'
-
-    def __setitem__(self, key, value):
-        if key in self:
-            del self[key]
-        OrderedDict.__setitem__(self, key, value)
 
 if __name__ == "__main__":
     args = get_arguments()
