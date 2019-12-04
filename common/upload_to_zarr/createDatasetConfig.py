@@ -21,7 +21,8 @@ def get_arguments():
     parser.add_argument('--yaml', required=False, help="Use YAML output.", action='store_true')
     parser.add_argument('--skip_errors', required=False, help="Errors do not end program.", action='store_true')
     parser.add_argument('--title', required=False, help="Specify Title.")
-    parser.add_argument('--append_dim', required=False, nargs="+", default='time', help="Dimension to append to.")
+    parser.add_argument('--append_dim', required=False, nargs="+", default=['time'], help="Dimension to append to.")
+    parser.add_argument('--exclude', required=False, nargs="+", default=['utc_time', 'time_bnds'], help="Dimension to append to.")
     parser.add_argument('--chunk_size', required=False, default='10MB', help="Desired Chunk size. Example: 10MB, 5GB, 10KB, etc")
     parser.add_argument('files', nargs="+", help="Files or directory to scan.")
     return parser.parse_args()
@@ -48,8 +49,7 @@ def get_config_dict(variable):
 def parse_chunk_size(chunk_size_str):
     """Attempts to parse chunk size into bytes."""
     chunk_size_str = chunk_size_str.upper()
-    size_factors =
-    {
+    size_factors = {
             "B" : 1,
             "KB" : 1000,
             "MB" : 1000**2,
@@ -59,8 +59,8 @@ def parse_chunk_size(chunk_size_str):
     format = chunk_size_str[-2:]
     value = chunk_size_str[:-2]
     if format not in size_factors:
-        raise ValueError(format+" not in +"size_factors.keys())
-    scaled_value = int(value) * size_factors(format)
+        raise ValueError(format+" not in +" + size_factors.keys())
+    scaled_value = int(value) * size_factors[format]
     return scaled_value
 
 def check_variable_exists(variables, var_name, dims):
@@ -74,19 +74,40 @@ def check_variable_exists(variables, var_name, dims):
         i += 1
     return i
 
-def extract_ds_info(variables, filename):
+def extract_ds_info(variables, filename, append_dim_list, chunk_size, exclude):
     """Add filename variables to in_dict.
     """
     ds = xarray.open_dataset(filename)
     for var_name in ds.data_vars.keys():
+        if var_name in exclude:
+            continue
         variable = ds[var_name]
         if var_name not in variables:
             variables[var_name] = get_config_dict(variable)
+            dtype_size = variable.dtype.itemsize # In Bytes
+            append_dim = get_append_dim(variable, append_dim_list)
+            if append_dim is None:
+                continue
+            default_size = 1
+            for dim, dim_size in zip(variable.dims, variable.shape):
+                if dim != append_dim:
+                    default_size = dim_size * default_size
+            append_dim_size = chunk_size / default_size
+            variables[var_name]['chunk'][append_dim] = int(append_dim_size)
         else:
             i = check_variable_exists(variables, var_name, variable.dims)
             if i > 0:
                 new_var_name = var_name+str(i)
                 variables[new_var_name] = get_config_dict(variable)
+
+def get_append_dim(variable, dim_list):
+    """Given a list of dimensions, find the first that is in variable."""
+    if len(variable.dims) == 0:
+        return None
+    for dim in dim_list:
+        if dim in variable.dims:
+            return dim
+    return None
 
 def get_files_from_dir(directory):
     """Given directory, return a list of files.
@@ -120,16 +141,24 @@ if __name__ == "__main__":
     else:
         config_filename = args.files[0]+ext
 
+    chunk_size = parse_chunk_size(args.chunk_size)
+
     variables = {}
     for filename in filenames:
         if os.path.isdir(filename):
             filenames.extend(get_files_from_dir(filename))
             continue
         print("processing "+filename)
-        extract_ds_info(variables, filename)
+        extract_ds_info(variables, filename, args.append_dim, chunk_size, args.exclude)
 
     # Make variables a collection of objects
-    config = list(variables.values())
+    config_vars = list(variables.values())
+    config_globals = {
+            }
+    config = {
+            'global_specs' : config_globals,
+            'variables' : config_vars
+            }
 
     with open(config_filename, 'w') as fh:
         if args.json:
