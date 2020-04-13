@@ -7,12 +7,17 @@ def usage():
     print('Usage:')
     print('    '+sys.argv[0]+' [netCDF file] [attribute name] [attribute value]')
 
-def add_global(filename, key, value):
+def add_globals(filename, key_value={}):
     """Given a filename, will add a new global attribute
     of key value pair.
+
+    Args:
+        filename (str): filename to operate on.
+        key_value (dict): key/value pairs to add.
     """
     nc = Dataset(filename, 'a')
-    nc.setncattr(key, value)
+    for key,value in key_value.items():
+        nc.setncattr(key, value)
     nc.close()
 
 
@@ -24,4 +29,5 @@ if __name__ == '__main__':
     filename = sys.argv[1]
     key = sys.argv[2]
     value = sys.argv[3]
-    add_global(filename, key, value)
+    kv_dict = {key:value}
+    add_globals(filename, kv_dict)
