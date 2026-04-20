@@ -9,17 +9,13 @@ source ~/../chifan/.tcshrc
 set srcd = '/glade/campaign/ncar/USGS_Water/CONUS404_PGW'
 set srcd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW'
 set wrkd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/data'
+set inpd = '/glade/campaign/collections/gdex/data/d559001'
 
-#set wydir = 'WY1980'
-#set iy4 = '1980'
-#set amn = '01'
-#
-#cd "$srcd/$wydir"
-#cp -p wrf2d_d01_"$iy4"-"$amn"-01_??:00:00 "$wrkd"/
-#cd "$wrkd"
-#
-#
-set inf=$1
+cd "$inpd"
+
+foreach inf (wrf2d_*)
+  if ("$inf" =~ *.nc) continue
+  echo "Processing: $inf"
 
 set constants = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs404.nc'
 
@@ -190,4 +186,6 @@ set constants = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs
   ncatted -h -a stagger,W,m,c," " "$outf"
   ncks -h -A $src/d3_layers_stag.nc "$outf"
 # cp -p "$outf" /glade/campaign/collections/rda/work/chifan/USGSout/
+end
+echo '....all finished'
 exit

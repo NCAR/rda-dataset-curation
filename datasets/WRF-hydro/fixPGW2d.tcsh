@@ -7,21 +7,17 @@ source ~/../chifan/my.rdadata.tcshrc
 source ~/../chifan/.tcshrc
 
 set srcd = '/glade/campaign/ncar/USGS_Water/CONUS404_PGW'
+set inpd = '/glade/campaign/collections/gdex/data/d559001'
 set wrkd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/data'
 
-set wydir = 'WY1980'
-set iy4 = '1980'
-set amn = '01'
-
-cd "$srcd/$wydir"
-cp -p wrf2d_d01_"$iy4"-"$amn"-01_??:00:00 "$wrkd"/
-cd "$wrkd"
+cd "$inpd"
 
 set constants = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs404.nc'
 
 # done fix wrf2d_d01_1986-03-05_08:00:00
 #
-foreach inf (wrf2d_d01_"$iy4"-"$amn"-??_??:00:00)
+foreach inf (wrf2d_*)
+  if ("$inf" =~ *.nc) continue
   if ( -f tmp.nc ) then
    echo '**** tmp.nc exists, quit, check'
    exit
