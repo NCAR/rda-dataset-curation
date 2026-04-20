@@ -28,7 +28,7 @@ set constants = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs
   # if ( ! -d ORIG ) mkdir ORIG
   # cp "$inf" tmp.nc
   # mv "$inf" ORIG/
-  set outf = $inf
+  set outf = `echo $inf | tr ':' '-'`.nc
   set tmp = `shuf -i 0-100 -n 1`
   ncap2 -h -O -v -s 'Time=XTIME' $outf $tmp
   #  if ( ! -f USGS_latlon_fixed.nc ) cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_latlon_fixed.nc .
