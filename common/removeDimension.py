@@ -175,8 +175,8 @@ def remove_dimension(nc, dim_name, outfile=None):
                 time_var = var
             elif var.name == 'valid_time':
                 valid_var = var
-        new_var = tmp_nc.createVariable('time', valid_var.dtype, ('time',))
-        copync.copy_var_attrs(valid_var, new_var)
+        new_var = tmp_nc.createVariable('time', valid_var.dtype, ('time',), fill_value=9999)
+        copync.copy_var_attrs(valid_var, new_var, ignore=['_FillValue'])
         new_var[:] = valid_var[:]
         return (outfile, tmp_nc)
     # Next, copy unchanged vars
@@ -221,8 +221,8 @@ def remove_dimension(nc, dim_name, outfile=None):
             if varname == 'valid_time':
                 varname = 'time'
 
-            new_var = tmp_nc.createVariable(varname, var.dtype, dims)
-            copync.copy_var_attrs(var, new_var)
+            new_var = tmp_nc.createVariable(varname, var.dtype, dims,  fill_value=9999)
+            copync.copy_var_attrs(var, new_var, ignore=['_FillValue'])
             new_var[:] = new_data
             step_str = 'GRIB_stepType'
             if step_str in new_var.ncattrs() and new_var.getncattr(step_str) is not 'instant':

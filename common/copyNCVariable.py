@@ -28,7 +28,7 @@ def copy_variable(infile, outfile, var_name, new_varname=None, new_fill_value=No
         copy_var_attrs(var, new_var, ignore=['_FillValue'])
         new_var[:] = change_fill_value(var, 9999)
     else:
-        copy_var_attrs(var, new_var)
+        copy_var_attrs(var, new_var, ignore=['_FillValue'])
         new_var[:] = var[:]
     return f2
 
