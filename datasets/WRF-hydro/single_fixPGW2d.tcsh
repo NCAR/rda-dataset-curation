@@ -13,7 +13,11 @@ set script_dir = `cd $script_dir && pwd`
 set srcd = '/glade/campaign/ncar/USGS_Water/CONUS404_PGW'
 set srcd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW'
 set wrkd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/data'
-set inpd = '/glade/campaign/collections/gdex/data/d559001'
+if ( $#argv >= 1 ) then
+  set inpd = "$argv[1]"
+else
+  set inpd = `pwd`
+endif
 
 cd "$inpd"
 
