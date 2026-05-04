@@ -1,5 +1,6 @@
 #! /bin/tcsh
 
+module load conda
 conda activate npl
 
 conda activate /glade/work/rdadata/conda-envs/pg-casper
