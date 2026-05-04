@@ -2,7 +2,6 @@
 
 module load conda
 conda activate npl
-
 conda activate /glade/work/rdadata/conda-envs/pg-casper
 source ~/../chifan/my.rdadata.tcshrc
 source ~/../chifan/.tcshrc
@@ -20,7 +19,7 @@ else
   set inpd = `pwd`
 endif
 
-foreach inf (`find "$inpd" -name "wrf2d_*.nc"`)
+foreach inf (`find "$inpd" -name "wrf2d_*00"`)
   echo "Processing: $inf"
 
   set constants = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs404.nc'
@@ -34,8 +33,8 @@ foreach inf (`find "$inpd" -name "wrf2d_*.nc"`)
   # if ( ! -d ORIG ) mkdir ORIG
   # cp "$inf" tmp.nc
   # mv "$inf" ORIG/
-  set tmp = `shuf -i 0-100 -n 1`
-  ncap2 -h -O -v -s 'Time=XTIME' $outf $tmp
+  set tmp = `shuf -i 0-1000 -n 1`.nc
+  ncap2 -h -O -v -s 'Time=XTIME' $inf $tmp
   #  if ( ! -f USGS_latlon_fixed.nc ) cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_latlon_fixed.nc .
   #  if ( ! -f USGS_XLATXLONG_U.nc )  cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_XLATXLONG_U.nc .
   #  if ( ! -f USGS_XLATXLONG_V.nc )  cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_XLATXLONG_V.nc .
@@ -189,10 +188,11 @@ foreach inf (`find "$inpd" -name "wrf2d_*.nc"`)
 
   ncatted -h -a stagger,Z,m,c," " "$inf"
   ncatted -h -a stagger,W,m,c," " "$inf"
-  ncks -h -A $src/d3_layers_stag.nc "$inf"
+  ncks -h -A $srcd/3_layers_stag.nc "$inf"
 # cp -p "$inf" /glade/campaign/collections/rda/work/chifan/USGSout/
 
   python $script_dir/convert_inplace.py "$inf"
+  mv $inf $inf.nc
 end
 echo '....all finished'
 exit
