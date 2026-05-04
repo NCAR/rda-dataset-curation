@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/tcsh
 
 module load conda
 conda activate npl
@@ -7,39 +7,39 @@ conda activate /glade/work/rdadata/conda-envs/pg-casper
 source ~/../chifan/my.rdadata.tcshrc
 source ~/../chifan/.tcshrc
 
-script_dir=$(dirname "$0")
-script_dir=$(cd "$script_dir" && pwd)
+set script_dir = `dirname $0`
+set script_dir = `cd $script_dir && pwd`
 
-srcd='/glade/campaign/ncar/USGS_Water/CONUS404_PGW'
-srcd='/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW'
-wrkd='/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/data'
+set srcd = '/glade/campaign/ncar/USGS_Water/CONUS404_PGW'
+set srcd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW'
+set wrkd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/data'
 
-if [ $# -ge 1 ]; then
-  inpd="$1"
+if ( $#argv >= 1 ) then
+  set inpd = "$argv[1]"
 else
-  inpd=$(pwd)
-fi
+  set inpd = `pwd`
+endif
 
-while IFS= read -r inf; do
+foreach inf (`find "$inpd" -name "wrf2d_*.nc"`)
   echo "Processing: $inf"
 
-  constants='/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs404.nc'
+  set constants = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs404.nc'
 
 # done fix wrf2d_d01_1986-03-05_08:00:00
 #
-#  if [ -f tmp.nc ]; then
+#  if ( -f tmp.nc ) then
 #   echo '**** tmp.nc exists, quit, check'
 #   exit
-#  fi
-  # if [ ! -d ORIG ]; then mkdir ORIG; fi
+#  endif
+  # if ( ! -d ORIG ) mkdir ORIG
   # cp "$inf" tmp.nc
   # mv "$inf" ORIG/
-  tmp=$(shuf -i 0-100 -n 1)
+  set tmp = `shuf -i 0-100 -n 1`
   ncap2 -h -O -v -s 'Time=XTIME' $outf $tmp
-  #  if [ ! -f USGS_latlon_fixed.nc ]; then cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_latlon_fixed.nc .; fi
-  #  if [ ! -f USGS_XLATXLONG_U.nc ]; then  cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_XLATXLONG_U.nc .; fi
-  #  if [ ! -f USGS_XLATXLONG_V.nc ]; then  cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_XLATXLONG_V.nc .; fi
-  #  if [ ! -f 3_layers_stag.nc ]; then cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/3_layers_stag.nc .; fi
+  #  if ( ! -f USGS_latlon_fixed.nc ) cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_latlon_fixed.nc .
+  #  if ( ! -f USGS_XLATXLONG_U.nc )  cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_XLATXLONG_U.nc .
+  #  if ( ! -f USGS_XLATXLONG_V.nc )  cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/USGS_XLATXLONG_V.nc .
+  #  if ( ! -f 3_layers_stag.nc ) cp /lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/3_layers_stag.nc .
 
 
   ncks -h -A $srcd/USGS_latlon_fixed.nc "$inf"
@@ -52,7 +52,7 @@ while IFS= read -r inf; do
   ncatted -h -a MemoryOrder,,d,, "$inf"
   rm $tmp
 # echo 'rm tmp.nc '"$inf"
-# echo 'rm tmp.nc '$(rm tmp.nc)
+# echo 'rm tmp.nc '`rm tmp.nc`
 
   ncatted -h -a description,ACRUNSB,m,c,"Accumulated RUNSB"  "$inf"
   ncatted -h -a description,ACRUNSF,m,c,"Accumulated RUNSF"  "$inf"
@@ -192,6 +192,7 @@ while IFS= read -r inf; do
   ncks -h -A $src/d3_layers_stag.nc "$inf"
 # cp -p "$inf" /glade/campaign/collections/rda/work/chifan/USGSout/
 
-  python "$script_dir/convert_inplace.py" "$inf"
-done < <(find "$inpd" -name "wrf2d_*.nc")
+  python $script_dir/convert_inplace.py "$inf"
+end
 echo '....all finished'
+exit
