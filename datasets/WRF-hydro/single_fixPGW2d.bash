@@ -20,9 +20,7 @@ else
   inpd=$(pwd)
 fi
 
-cd "$inpd"
-
-for inf in wrf2d_*.nc; do
+while IFS= read -r inf; do
   echo "Processing: $inf"
 
   constants='/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/wrfconstants_usgs404.nc'
@@ -195,5 +193,5 @@ for inf in wrf2d_*.nc; do
 # cp -p "$inf" /glade/campaign/collections/rda/work/chifan/USGSout/
 
   python "$script_dir/convert_inplace.py" "$inf"
-done
+done < <(find "$inpd" -name "wrf2d_*.nc")
 echo '....all finished'
