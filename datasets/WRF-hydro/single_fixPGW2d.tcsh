@@ -1,5 +1,11 @@
 #!/bin/tcsh
-
+#PBS -N log2d.pgw
+#PBS -l select=1:ncpus=1:mem=2GB
+#PBS -l walltime=26:00:00
+#PBS -q gdex
+#PBS -A P43713000
+#PBS -j oe
+#
 module load conda
 conda activate npl
 conda activate /glade/work/rdadata/conda-envs/pg-casper
@@ -8,16 +14,20 @@ source ~/../chifan/.tcshrc
 
 set script_dir = `dirname $0`
 set script_dir = `cd $script_dir && pwd`
+set script_dir = '/glade/u/home/rpconroy/repositories/rda-dataset-curation/datasets/WRF-hydro/'
 
 set srcd = '/glade/campaign/ncar/USGS_Water/CONUS404_PGW'
 set srcd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW'
-set wrkd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/data'
+set wrkd = '/lustre/desc1/gdex/work/rpconroy/CONUS404_PGW/work'
+cd "$wrkd"
 
-if ( $#argv >= 1 ) then
-  set inpd = "$argv[1]"
-else
-  set inpd = `pwd`
-endif
+#if ( $#argv >= 1 ) then
+#  set inpd = "$argv[1]"
+#else
+#  set inpd = `pwd`
+#endif
+
+set inpd = "/gdex/data/d559001/wy1980/198003"
 
 foreach inf (`find "$inpd" -name "wrf2d_*00"`)
   echo "Processing: $inf"
